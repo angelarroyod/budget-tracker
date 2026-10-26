@@ -31,6 +31,9 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
 
   return (
     <div className="flex flex-1">
+      <a href="#main" className="sr-only z-50 rounded-md bg-background px-3 py-2 text-sm font-medium focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:ring-2 focus:ring-ring">
+        {t("skip")}
+      </a>
       <aside className="hidden w-60 shrink-0 border-r p-4 lg:block">
         <div className="mb-6 px-3">
           <p className="font-semibold">{tApp("name")}</p>
@@ -70,7 +73,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
           </div>
         </header>
 
-        <main className="flex-1 p-4 md:p-6">{children}</main>
+        <main id="main" tabIndex={-1} className="flex-1 p-4 outline-none md:p-6">{children}</main>
       </div>
     </div>
   );

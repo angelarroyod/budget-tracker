@@ -61,17 +61,18 @@ export async function HeatMap({ rows, selectedMonth }: { rows: HeatRow[]; select
                   return c.kind === "future" ? (
                     <span key={m.month} role="cell" aria-label={aria} title={aria} className={cls} style={cellStyle(c)}>{text}</span>
                   ) : (
+                    // The cell wraps the link: links can't carry role="cell" themselves.
+                    <span key={m.month} role="cell" className="flex">
                     <Link
-                      key={m.month}
-                      role="cell"
                       href={row.href(m.month)}
                       aria-label={aria}
                       title={aria}
-                      className={`${cls} outline-offset-2 hover:ring-2 hover:ring-foreground/40 focus-visible:outline-2 focus-visible:outline-ring ${m.month === selectedMonth ? "ring-2 ring-foreground" : ""}`}
+                      className={`${cls} w-full outline-offset-2 hover:ring-2 hover:ring-foreground/40 focus-visible:outline-2 focus-visible:outline-ring ${m.month === selectedMonth ? "ring-2 ring-foreground" : ""}`}
                       style={cellStyle(c)}
                     >
                       {text}
                     </Link>
+                    </span>
                   );
                 })}
               </div>

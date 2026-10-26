@@ -26,7 +26,8 @@
     "myTeam": "My team",
     "expenses": "Expenses",
     "approvals": "Approvals",
-    "openMenu": "Open menu"
+    "openMenu": "Open menu",
+    "skip": "Skip to content"
   },
   "topbar": {
     "fiscalYear": "Fiscal year",

@@ -29,7 +29,8 @@ function rng(seed: number) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
-const rand = rng(2026);
+// Re-created at the start of every seed() so a warm serverless instance resets to identical data.
+let rand = rng(2026);
 const between = (lo: number, hi: number) => lo + rand() * (hi - lo);
 const pick = <T>(xs: readonly T[]) => xs[Math.floor(rand() * xs.length)];
 
@@ -150,6 +151,7 @@ function statusFor(month: number): s.ExpenseStatus {
 const at = (month: number, day: number) => new Date(Date.UTC(2026, month - 1, day, 15));
 
 export async function seed(db: DB) {
+  rand = rng(2026);
   await db.transaction(async (tx) => {
     await tx.execute(sql`truncate approval_steps, approval_requests, expenses, plans, line_items,
       users, teams, fx_rates, settings restart identity cascade`);

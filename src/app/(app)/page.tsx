@@ -41,7 +41,7 @@ export default async function DashboardPage() {
             pct: percent(format, (site.projected - site.budget) / site.budget, true),
           })}{" "}
           {driver && driver.forecast.variance < 0 ? (
-            <Link href={`/teams/${driver.id}`} className="text-muted-foreground underline-offset-4 hover:underline">
+            <Link href={`/teams/${driver.id}`} className="text-muted-foreground underline decoration-muted-foreground/50 underline-offset-4 hover:decoration-foreground">
               {t("driver", { team: teamName(driver.key), amount: money(format, -driver.forecast.variance) })}
             </Link>
           ) : (

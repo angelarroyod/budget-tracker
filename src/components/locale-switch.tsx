@@ -11,7 +11,8 @@ const OPTIONS = [
 export async function LocaleSwitch() {
   const [locale, t] = await Promise.all([getLocale(), getTranslations("topbar")]);
   return (
-    <form action={setLocale} role="group" aria-label={t("language")} className="flex rounded-lg border p-0.5">
+    <form action={setLocale}>
+      <div role="group" aria-label={t("language")} className="flex rounded-lg border p-0.5">
       {OPTIONS.map((o) => (
         <Button
           key={o.locale}
@@ -21,12 +22,14 @@ export async function LocaleSwitch() {
           size="xs"
           variant={o.locale === locale ? "secondary" : "ghost"}
           aria-pressed={o.locale === locale}
-          aria-label={o.name}
           lang={o.locale}
         >
+          {/* Accessible name "EN (English)" contains the visible "EN" (WCAG 2.5.3, label in name) */}
           {o.short}
+          <span className="sr-only"> ({o.name})</span>
         </Button>
       ))}
+      </div>
     </form>
   );
 }
