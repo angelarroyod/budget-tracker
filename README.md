@@ -141,4 +141,6 @@ On Vercel with the Neon integration. Environment variables:
 CSV/Excel budget import · month close with adjustment entries · settings screen · real
 authentication · notifications. They're scoped in [SPEC.md](SPEC.md); month close is next.
 
-All data is fictional.
+## License
+
+[MIT](LICENSE). All data is fictional.
