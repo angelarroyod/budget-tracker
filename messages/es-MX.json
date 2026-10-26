@@ -261,5 +261,75 @@
       "invalid": "Elige una opción válida.",
       "amount": "Escribe un monto mayor que 0 con hasta 2 decimales."
     }
+  },
+  "approvals": {
+    "title": "Aprobaciones",
+    "subtitle": "Los gastos no presupuestados o sobre el plan pasan por Responsable → Ejecutivo → Finanzas (más de {threshold}).",
+    "tabs": {
+      "label": "Vistas de aprobación",
+      "mine": "Esperan mi decisión",
+      "pending": "Todas pendientes",
+      "closed": "Decididas"
+    },
+    "empty": {
+      "mine": "Nada espera tu decisión.",
+      "pending": "No hay solicitudes pendientes.",
+      "closed": "Aún no hay solicitudes decididas."
+    },
+    "col": {
+      "request": "Solicitud",
+      "team": "Equipo",
+      "requester": "Solicitada por",
+      "amount": "Monto",
+      "submitted": "Enviada",
+      "state": "Estado"
+    },
+    "state": {
+      "waitingOn": "Espera a {role}",
+      "approved": "Aprobada",
+      "rejected": "Rechazada"
+    },
+    "open": "Abrir solicitud",
+    "detail": {
+      "back": "Todas las aprobaciones",
+      "title": "Solicitud de aprobación",
+      "expense": "Gasto",
+      "lineItem": "Partida",
+      "vendor": "Proveedor",
+      "month": "Mes fiscal",
+      "status": "Estado",
+      "original": "Monto original",
+      "rate": "Tipo de cambio",
+      "usd": "Monto en USD",
+      "nextFy": "Próximo año fiscal",
+      "reason": "Motivo",
+      "timeline": "Historial",
+      "impact": {
+        "title": "Impacto si se aprueba",
+        "explain": "Las solicitudes pendientes aún no están en la proyección. Aprobar esta mueve la proyección del equipo:",
+        "projected": "Proyección de cierre",
+        "now": "Hoy",
+        "after": "Si se aprueba"
+      },
+      "submitted": "Enviada por {name}",
+      "step": {
+        "champion": "Revisión del responsable",
+        "executive": "Aprobación del ejecutivo",
+        "finance": "Aprobación de finanzas"
+      },
+      "decision": {
+        "pending": "En espera",
+        "approved": "Aprobada",
+        "rejected": "Rechazada",
+        "skipped": "Omitida (el solicitante es el responsable)"
+      },
+      "by": "{name}",
+      "current": "Paso actual",
+      "comment": "Comentario (opcional)",
+      "commentHint": "Se muestra en el historial. Recomendado al rechazar.",
+      "yourDecision": "Tu decisión",
+      "notYours": "Este paso espera a {name}.",
+      "closed": "Cerrada el {date}"
+    }
   }
 }

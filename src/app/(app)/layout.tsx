@@ -7,15 +7,18 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { countWaitingOn } from "@/lib/approval-queries";
 import { getCurrentUser } from "@/lib/dal";
 
 export default async function AppLayout({ children }: LayoutProps<"/">) {
   const user = await getCurrentUser();
-  const [t, tApp, tTop, tRoles] = await Promise.all([
+  const [waiting, t, tApp, tTop, tRoles, tApprovals] = await Promise.all([
+    countWaitingOn(user.id),
     getTranslations("nav"),
     getTranslations("app"),
     getTranslations("topbar"),
     getTranslations("roles"),
+    getTranslations("approvals.tabs"),
   ]);
 
   const items: NavItem[] = [
@@ -23,7 +26,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
       ? { href: `/teams/${user.teamId}`, label: t("myTeam"), icon: "team" }
       : { href: "/", label: t("dashboard"), icon: "dashboard" },
     { href: "/expenses", label: t("expenses"), icon: "expenses" },
-    { href: "/approvals", label: t("approvals"), icon: "approvals" },
+    { href: "/approvals", label: t("approvals"), icon: "approvals", badge: { count: waiting, label: tApprovals("mine") } },
   ];
 
   return (

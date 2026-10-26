@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 const ICONS = { dashboard: LayoutDashboardIcon, team: UsersIcon, expenses: ReceiptIcon, approvals: CheckSquareIcon };
-export type NavItem = { href: string; label: string; icon: keyof typeof ICONS };
+export type NavItem = { href: string; label: string; icon: keyof typeof ICONS; badge?: { count: number; label: string } };
 
 function NavLinks({ items, label, onNavigate }: { items: NavItem[]; label: string; onNavigate?: () => void }) {
   const pathname = usePathname();
@@ -31,6 +31,12 @@ function NavLinks({ items, label, onNavigate }: { items: NavItem[]; label: strin
           >
             <Icon className="size-4 shrink-0" aria-hidden />
             {item.label}
+            {item.badge && item.badge.count > 0 && (
+              <span className="ml-auto rounded-full bg-primary px-1.5 text-xs font-semibold text-primary-foreground tabular-nums">
+                {item.badge.count}
+                <span className="sr-only"> {item.badge.label}</span>
+              </span>
+            )}
           </Link>
         );
       })}

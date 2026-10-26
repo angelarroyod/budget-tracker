@@ -261,5 +261,75 @@
       "invalid": "Choose a valid option.",
       "amount": "Enter an amount greater than 0 with up to 2 decimals."
     }
+  },
+  "approvals": {
+    "title": "Approvals",
+    "subtitle": "Unbudgeted and over-plan expenses go through Champion → Executive → Finance (above {threshold}).",
+    "tabs": {
+      "label": "Approval views",
+      "mine": "Waiting on me",
+      "pending": "All pending",
+      "closed": "Decided"
+    },
+    "empty": {
+      "mine": "Nothing is waiting on you.",
+      "pending": "No requests are pending.",
+      "closed": "No decided requests yet."
+    },
+    "col": {
+      "request": "Request",
+      "team": "Team",
+      "requester": "Requested by",
+      "amount": "Amount",
+      "submitted": "Submitted",
+      "state": "State"
+    },
+    "state": {
+      "waitingOn": "Waiting on {role}",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "open": "Open request",
+    "detail": {
+      "back": "All approvals",
+      "title": "Approval request",
+      "expense": "Expense",
+      "lineItem": "Line item",
+      "vendor": "Vendor",
+      "month": "Fiscal month",
+      "status": "Status",
+      "original": "Original amount",
+      "rate": "Rate",
+      "usd": "USD amount",
+      "nextFy": "Next fiscal year",
+      "reason": "Reason",
+      "timeline": "Timeline",
+      "impact": {
+        "title": "Impact if approved",
+        "explain": "Pending requests aren’t in the forecast yet. Approving this one moves the team’s projection:",
+        "projected": "Projected year-end",
+        "now": "Now",
+        "after": "If approved"
+      },
+      "submitted": "Submitted by {name}",
+      "step": {
+        "champion": "Champion review",
+        "executive": "Executive approval",
+        "finance": "Finance approval"
+      },
+      "decision": {
+        "pending": "Waiting",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "skipped": "Skipped (requester is the champion)"
+      },
+      "by": "{name}",
+      "current": "Current step",
+      "comment": "Comment (optional)",
+      "commentHint": "Shown in the timeline. Recommended when rejecting.",
+      "yourDecision": "Your decision",
+      "notYours": "This step is waiting on {name}.",
+      "closed": "Closed {date}"
+    }
   }
 }

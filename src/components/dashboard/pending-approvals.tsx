@@ -1,5 +1,6 @@
 import type { Messages } from "next-intl";
 import { getFormatter, getTranslations } from "next-intl/server";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { canDecide } from "@/lib/approvals";
 import type { CurrentUser } from "@/lib/dal";
@@ -30,7 +31,7 @@ export async function PendingApprovals({ requests, exposure, user }: { requests:
               <li key={r.id} className="py-3 first:pt-0">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-sm font-medium">{r.description}</p>
+                    <Link href={`/approvals/${r.id}`} className="text-sm font-medium underline-offset-4 hover:underline">{r.description}</Link>
                     <p className="text-xs text-muted-foreground">
                       {t("by", { name: r.requesterName, team: tTeams(r.teamKey as keyof Messages["teams"]) })}
                     </p>

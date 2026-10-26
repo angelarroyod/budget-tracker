@@ -53,9 +53,10 @@ export type DecideResult = { ok: true; outcome: Outcome } | { ok: false };
  * Records the current user's decision on the step that's waiting for them. The request row is
  * locked so two clicks (or two approvers) can't both act on the same step.
  */
-export async function decideRequest(requestId: number, decision: "approved" | "rejected"): Promise<DecideResult> {
+export async function decideRequest(requestId: number, decision: "approved" | "rejected", comment?: string): Promise<DecideResult> {
   const user = await getCurrentUser();
   if (!Number.isInteger(requestId) || (decision !== "approved" && decision !== "rejected")) return { ok: false };
+  const note = comment?.trim().slice(0, 500) || null;
 
   try {
     const outcome = await db.transaction(async (tx) => {
@@ -66,8 +67,8 @@ export async function decideRequest(requestId: number, decision: "approved" | "r
       // decide() throws unless this user is the current step's approver and not the requester
       const at = new Date();
       const step = currentStep(steps);
-      const result = decide(steps, { userId: user.id, requesterId: req.requesterId, decision, at });
-      await tx.update(approvalSteps).set({ decision, decidedAt: at }).where(eq(approvalSteps.id, step!.id));
+      const result = decide(steps, { userId: user.id, requesterId: req.requesterId, decision, at, comment: note ?? undefined });
+      await tx.update(approvalSteps).set({ decision, decidedAt: at, comment: note }).where(eq(approvalSteps.id, step!.id));
 
       if (result.outcome !== "pending") {
         await tx.update(approvalRequests).set({ status: result.outcome, closedAt: at }).where(eq(approvalRequests.id, requestId));
