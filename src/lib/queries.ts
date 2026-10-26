@@ -1,5 +1,5 @@
 import "server-only";
-import { asc, eq } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, inArray, ne, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import * as s from "@/db/schema";
 import { currentStep, type Step } from "./approvals";
@@ -121,4 +121,101 @@ export async function getTeamSnapshot(teamId: number, month?: number) {
     pending: pendingRequests(d, teamId),
     monthExpenses: month ? expenses.filter((e) => e.fiscalMonth === month).sort((a, b) => b.amountUsdCents - a.amountUsdCents) : null,
   };
+}
+
+export const EXPENSES_PAGE_SIZE = 50;
+export type ExpenseFilters = {
+  teamId?: number; // always set for champions and delegates (by the page, from the session)
+  month?: number;
+  status?: s.ExpenseStatus;
+  approval?: (typeof s.approvalEnum.enumValues)[number];
+  q?: string;
+  page: number;
+};
+
+/** Filtered, paginated expense list. Filtering and paging happen in SQL; the list is the one view that can grow large. */
+export async function getExpenseList(f: ExpenseFilters) {
+  const q = f.q?.replace(/[\%_]/g, "\$&"); // escape LIKE wildcards in user input
+  const where = and(
+    f.teamId ? eq(s.expenses.teamId, f.teamId) : undefined,
+    f.month ? eq(s.expenses.fiscalMonth, f.month) : undefined,
+    f.status ? eq(s.expenses.status, f.status) : undefined,
+    f.approval ? eq(s.expenses.approval, f.approval) : undefined,
+    q ? or(ilike(s.expenses.description, `%${q}%`), ilike(s.expenses.vendor, `%${q}%`)) : undefined,
+  );
+  const [rows, [agg]] = await Promise.all([
+    db
+      .select({
+        expense: s.expenses,
+        teamKey: s.teams.key,
+        lineItemEn: s.lineItems.nameEn,
+        lineItemEs: s.lineItems.nameEs,
+        createdBy: s.users.name,
+      })
+      .from(s.expenses)
+      .innerJoin(s.teams, eq(s.teams.id, s.expenses.teamId))
+      .innerJoin(s.users, eq(s.users.id, s.expenses.createdBy))
+      .leftJoin(s.lineItems, eq(s.lineItems.id, s.expenses.lineItemId))
+      .where(where)
+      .orderBy(desc(s.expenses.fiscalMonth), desc(s.expenses.createdAt), desc(s.expenses.id))
+      .limit(EXPENSES_PAGE_SIZE)
+      .offset((f.page - 1) * EXPENSES_PAGE_SIZE),
+    db
+      .select({ count: count(), totalUsd: sql<string>`coalesce(sum(${s.expenses.amountUsdCents}), 0)` })
+      .from(s.expenses)
+      .where(where),
+  ]);
+  return { rows, count: agg.count, totalUsdCents: Number(agg.totalUsd) };
+}
+
+/**
+ * What the add/edit form needs for one team: its line items with annual plan and booked spend
+ * (for the client-side "this will need approval" hint), the month FX rates, and the expense
+ * being edited. `editId` is ignored unless it belongs to `teamId`.
+ */
+export async function getExpenseFormData(teamId: number, editId?: number) {
+  const [items, planSums, bookedSums, rates, editing] = await Promise.all([
+    db.select().from(s.lineItems).where(eq(s.lineItems.teamId, teamId)).orderBy(asc(s.lineItems.accountCode)),
+    db
+      .select({ lineItemId: s.plans.lineItemId, cents: sql<string>`sum(${s.plans.amountCents})` })
+      .from(s.plans)
+      .innerJoin(s.lineItems, eq(s.lineItems.id, s.plans.lineItemId))
+      .where(eq(s.lineItems.teamId, teamId))
+      .groupBy(s.plans.lineItemId),
+    db
+      .select({ lineItemId: s.expenses.lineItemId, cents: sql<string>`sum(${s.expenses.amountUsdCents})` })
+      .from(s.expenses)
+      .where(and(eq(s.expenses.teamId, teamId), ...bookedConditions(editId)))
+      .groupBy(s.expenses.lineItemId),
+    db.select().from(s.fxRates).orderBy(asc(s.fxRates.month)),
+    editId
+      ? db.select().from(s.expenses).where(and(eq(s.expenses.id, editId), eq(s.expenses.teamId, teamId)))
+      : Promise.resolve([]),
+  ]);
+  const plan = new Map(planSums.map((p) => [p.lineItemId, Number(p.cents)]));
+  const booked = new Map(bookedSums.map((b) => [b.lineItemId, Number(b.cents)]));
+  return {
+    lineItems: items.map((i) => ({
+      id: i.id,
+      accountCode: i.accountCode,
+      nameEn: i.nameEn,
+      nameEs: i.nameEs,
+      annualPlanCents: plan.get(i.id) ?? 0,
+      annualBookedCents: booked.get(i.id) ?? 0,
+    })),
+    fxRates: rates.map((r) => Number(r.usdMxn)), // index 0 = January
+    editing: editing[0] ?? null,
+  };
+}
+
+/**
+ * Spend that counts against this year's plan (SPEC §2.3): not next-FY, not pending or rejected.
+ * Excludes `exceptId` so an edited expense isn't counted twice against itself.
+ */
+export function bookedConditions(exceptId?: number) {
+  return [
+    eq(s.expenses.nextFy, false),
+    inArray(s.expenses.approval, ["none", "approved"]),
+    exceptId ? ne(s.expenses.id, exceptId) : undefined,
+  ];
 }

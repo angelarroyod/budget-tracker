@@ -85,6 +85,8 @@ Approval steps, in order:
 
 Any rejection ends the request (expense → `rejected`, excluded from forecast). Final approval → expense counts normally.
 
+Once an expense is in the approval flow (pending or approved), only its status can change (e.g. committed → actual), so an approved amount can't be raised afterwards. Rejected expenses are read-only. An edit keeps the locked FX rate unless the currency changes.
+
 ---
 
 ## 3. Data model (Drizzle)
@@ -117,7 +119,7 @@ Constraints worth putting in the DB, not app code: `CHECK (month BETWEEN 1 AND 1
 | `/login` | all | 3 buttons: **Executive**, **Champion (Facilities)**, **Finance**. "Demo data resets daily." |
 | `/` | executive, finance | Headline sentence · 6 KPI cards · projected vs budget by team (bar) · heat map · monthly planned/booked (bar + line) · team table · pending approvals panel |
 | `/teams/[id]` | executive, that team's champion | Same layout scoped to one team + line items table (plan / committed / actual / projected) + savings callout. `?month=N` filters expenses to that month. |
-| `/expenses` | all (champion scoped to team) | Filterable table (team, month, status, currency, approval) · add/edit in a Sheet |
+| `/expenses` | all (champion scoped to team) | Filterable table (team, month, status, approval, search; filters live in the URL, 50 per page) · add/edit in a Sheet opened by `?new=1` / `?edit=ID`. Only champions and delegates create or edit; executive and finance review read-only. |
 | `/approvals` | executive, finance, champion | Queue of requests waiting on *my* step · quick approve/reject |
 | `/approvals/[id]` | involved users | Request detail + vertical step timeline with timestamps |
 

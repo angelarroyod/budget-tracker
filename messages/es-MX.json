@@ -173,5 +173,93 @@
     "committed": "Comprometido",
     "accrued": "Devengado",
     "actual": "Real"
+  },
+  "expenses": {
+    "title": "Gastos",
+    "subtitle": "Cada compra planeada y factura, en su moneda original.",
+    "readOnly": "Los gastos los registran los responsables de equipo y sus delegados. Aquí puedes revisarlos todos.",
+    "new": "Nuevo gasto",
+    "edit": "Editar",
+    "editTitle": "Editar gasto",
+    "newTitle": "Nuevo gasto",
+    "filters": {
+      "label": "Filtrar gastos",
+      "team": "Equipo",
+      "allTeams": "Todos los equipos",
+      "month": "Mes",
+      "allMonths": "Todos los meses",
+      "status": "Estado",
+      "allStatuses": "Todos los estados",
+      "approval": "Aprobación",
+      "allApprovals": "Cualquier aprobación",
+      "search": "Buscar",
+      "searchPlaceholder": "Descripción o proveedor",
+      "clear": "Quitar filtros"
+    },
+    "summary": "{count, plural, =0 {Ningún gasto coincide} one {# gasto} other {# gastos}} · {total} en total",
+    "page": "Página {page} de {pages}",
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "col": {
+      "description": "Descripción",
+      "team": "Equipo",
+      "lineItem": "Partida",
+      "vendor": "Proveedor",
+      "month": "Mes",
+      "status": "Estado",
+      "original": "Monto original",
+      "usd": "USD",
+      "actions": "Acciones"
+    },
+    "approval": {
+      "none": "Sin aprobación",
+      "pending": "Aprobación pendiente",
+      "approved": "Aprobado",
+      "rejected": "Rechazado"
+    },
+    "unbudgeted": "No presupuestado",
+    "nextFy": "Próximo AF",
+    "form": {
+      "description": "Descripción",
+      "vendor": "Proveedor",
+      "lineItem": "Partida",
+      "chooseLineItem": "Elige una partida",
+      "unbudgetedOption": "No presupuestado (requiere aprobación)",
+      "month": "Mes fiscal",
+      "status": "Estado",
+      "currency": "Moneda",
+      "amount": "Monto",
+      "amountHint": "Hasta 2 decimales, p. ej. 18,900.00",
+      "converted": "≈ {usd} a {rate} MXN por USD",
+      "rateLocked": "Tipo de cambio fijado al registrar el gasto.",
+      "nextFy": "Próximo año fiscal",
+      "nextFyHint": "Compromiso del AF2027: queda fuera de la proyección de este año.",
+      "invoice": "Factura",
+      "invoiceDisabled": "La carga de archivos está deshabilitada en la demo pública.",
+      "reason": "Motivo de la aprobación",
+      "reasonHint": "¿Por qué se necesita ahora? Los aprobadores lo verán.",
+      "remaining": "Quedan {amount} en esta partida este año.",
+      "willNeedApproval": "Esto iniciará una solicitud de aprobación: {why}",
+      "whyUnbudgeted": "no tiene partida.",
+      "whyOver": "excede el plan restante de la partida.",
+      "locked": "En flujo de aprobación: solo puede cambiar el estado.",
+      "lockedRejected": "Los gastos rechazados no se pueden editar.",
+      "save": "Guardar gasto",
+      "saving": "Guardando…",
+      "cancel": "Cancelar"
+    },
+    "toast": {
+      "saved": "Gasto guardado",
+      "savedApproval": "Gasto guardado. Se creó una solicitud de aprobación.",
+      "forbidden": "Solo puedes editar gastos de tu equipo.",
+      "locked": "Este gasto ya no se puede editar.",
+      "failed": "No se pudo guardar. Revisa el formulario e intenta de nuevo."
+    },
+    "errors": {
+      "required": "Obligatorio.",
+      "tooLong": "Demasiado largo.",
+      "invalid": "Elige una opción válida.",
+      "amount": "Escribe un monto mayor que 0 con hasta 2 decimales."
+    }
   }
 }

@@ -107,7 +107,7 @@ export default async function TeamPage({ params, searchParams }: PageProps<"/tea
           title={t("month.title", { month: monthLong(month) })}
           className="scroll-mt-4"
           action={
-            <Button variant="ghost" size="sm" render={<Link href={base} />}>
+            <Button variant="ghost" size="sm" nativeButton={false} render={<Link href={base} />}>
               <XIcon aria-hidden />
               {t("month.clear")}
             </Button>

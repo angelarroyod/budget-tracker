@@ -173,5 +173,93 @@
     "committed": "Committed",
     "accrued": "Accrued",
     "actual": "Actual"
+  },
+  "expenses": {
+    "title": "Expenses",
+    "subtitle": "Every planned purchase and invoice, in its original currency.",
+    "readOnly": "Expenses are entered by team champions and delegates. You can review everything here.",
+    "new": "New expense",
+    "edit": "Edit",
+    "editTitle": "Edit expense",
+    "newTitle": "New expense",
+    "filters": {
+      "label": "Filter expenses",
+      "team": "Team",
+      "allTeams": "All teams",
+      "month": "Month",
+      "allMonths": "All months",
+      "status": "Status",
+      "allStatuses": "All statuses",
+      "approval": "Approval",
+      "allApprovals": "Any approval",
+      "search": "Search",
+      "searchPlaceholder": "Description or vendor",
+      "clear": "Clear filters"
+    },
+    "summary": "{count, plural, =0 {No expenses match} one {# expense} other {# expenses}} · {total} total",
+    "page": "Page {page} of {pages}",
+    "prev": "Previous",
+    "next": "Next",
+    "col": {
+      "description": "Description",
+      "team": "Team",
+      "lineItem": "Line item",
+      "vendor": "Vendor",
+      "month": "Month",
+      "status": "Status",
+      "original": "Original amount",
+      "usd": "USD",
+      "actions": "Actions"
+    },
+    "approval": {
+      "none": "No approval needed",
+      "pending": "Pending approval",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "unbudgeted": "Unbudgeted",
+    "nextFy": "Next FY",
+    "form": {
+      "description": "Description",
+      "vendor": "Vendor",
+      "lineItem": "Line item",
+      "chooseLineItem": "Choose a line item",
+      "unbudgetedOption": "Unbudgeted (needs approval)",
+      "month": "Fiscal month",
+      "status": "Status",
+      "currency": "Currency",
+      "amount": "Amount",
+      "amountHint": "Up to 2 decimals, e.g. 18,900.00",
+      "converted": "≈ {usd} at {rate} MXN per USD",
+      "rateLocked": "Rate locked when the expense was entered.",
+      "nextFy": "Next fiscal year",
+      "nextFyHint": "Commitment for FY2027: kept out of this year’s forecast.",
+      "invoice": "Invoice",
+      "invoiceDisabled": "Uploads are disabled in the public demo.",
+      "reason": "Reason for approval",
+      "reasonHint": "Why is this needed now? Approvers see this.",
+      "remaining": "{amount} left on this line item this year.",
+      "willNeedApproval": "This will start an approval request: {why}",
+      "whyUnbudgeted": "it has no line item.",
+      "whyOver": "it exceeds the line item’s remaining plan.",
+      "locked": "In the approval flow: only the status can change.",
+      "lockedRejected": "Rejected expenses can’t be edited.",
+      "save": "Save expense",
+      "saving": "Saving…",
+      "cancel": "Cancel"
+    },
+    "toast": {
+      "saved": "Expense saved",
+      "savedApproval": "Expense saved. Approval request created.",
+      "forbidden": "You can only edit your own team’s expenses.",
+      "locked": "This expense can’t be edited anymore.",
+      "failed": "Couldn’t save. Check the form and try again."
+    },
+    "errors": {
+      "required": "Required.",
+      "tooLong": "Too long.",
+      "invalid": "Choose a valid option.",
+      "amount": "Enter an amount greater than 0 with up to 2 decimals."
+    }
   }
 }
