@@ -69,12 +69,14 @@ Red means **only** "already over budget". Never as decoration.
 - Click opens `/teams/[id]?month=N`.
 
 ### 2.6 Savings callout
-Line item in a **past** month with `booked < plan` → savings = `plan − booked`. The champion dashboard shows the total plus the top 3 items.
+Per line item: savings = `max(0, Σ past months (plan − booked))`. Netted across past months, so an item that underspent in March but overspent in May shows only the net saving. The current month is still open and doesn't count. The champion dashboard shows the total plus the top 3 items.
 
 ### 2.7 Unbudgeted expense → approval
 An expense needs approval when:
 - it has no line item ("Unbudgeted"), **or**
-- it pushes the line item's annual `booked` above its annual plan.
+- it pushes the line item's annual `booked` above its annual plan (next-FY expenses on a line item skip this check: they don't touch this year's plan).
+
+Only champions and delegates raise requests (expenses belong to a team). That way the executive and finance steps can never be self-approvals.
 
 Approval steps, in order:
 1. **Champion**: skipped if the requester is the champion. A delegate can never approve their own request.

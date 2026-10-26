@@ -1,5 +1,7 @@
 import { sql } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+import { outcomeOf, type Step } from "../lib/approvals";
+import { type Currency, toUsdCents } from "../lib/fx";
 import * as s from "./schema";
 
 /**
@@ -36,16 +38,11 @@ const round100 = (c: number) => Math.round(c / 10_000) * 10_000; // to nearest $
 // MXN per USD by fiscal month. Nov–Dec reuse October (no future rates yet).
 const FX = [17.85, 17.62, 17.4, 17.95, 18.3, 18.55, 18.2, 18.7, 19.1, 18.9, 18.9, 18.9];
 
-/** Amount in original currency + locked rate → both cent amounts. */
-function money(usdCents: number, currency: "USD" | "MXN", month: number) {
-  const rate = currency === "USD" ? 1 : FX[month - 1];
+/** Target USD spend → original-currency amount, then converted back the same way the app does. */
+function money(usdCents: number, currency: Currency, month: number) {
+  const rate = FX[month - 1];
   const amountOrigCents = currency === "USD" ? usdCents : Math.round(usdCents * rate);
-  return {
-    currency,
-    fxRate: rate.toFixed(6),
-    amountOrigCents,
-    amountUsdCents: Math.round(amountOrigCents / rate),
-  };
+  return { currency, amountOrigCents, ...toUsdCents(amountOrigCents, currency, rate) };
 }
 
 type Item = { code: string; en: string; es: string; weight: number };
@@ -248,11 +245,10 @@ export async function seed(db: DB) {
     await tx.insert(s.expenses).values(expenses);
 
     // Approval requests: unbudgeted expenses (no line item) with their step history.
-    type Step = { role: s.StepRole; approverId: number; decision: s.StepDecision; decidedAt?: Date; comment?: string };
     const requests: {
       team: string; requester: number; description: string; vendor: string; month: number;
-      status: s.ExpenseStatus; usdCents: number; currency: "USD" | "MXN"; reason: string;
-      createdAt: Date; steps: Step[];
+      status: s.ExpenseStatus; usdCents: number; currency: Currency; reason: string;
+      createdAt: Date; steps: Omit<Step, "seq">[];
     }[] = [
       {
         team: "maintenance", requester: champion("maintenance"), month: 7, status: "actual",
@@ -331,10 +327,9 @@ export async function seed(db: DB) {
     ];
 
     for (const r of requests) {
-      const decisions = r.steps.map((st) => st.decision);
-      const outcome = decisions.includes("rejected") ? "rejected"
-        : decisions.includes("pending") ? "pending" : "approved";
-      const lastDecided = r.steps.findLast((st) => st.decidedAt)?.decidedAt;
+      const steps = r.steps.map((st, i) => ({ ...st, seq: i + 1 }));
+      const outcome = outcomeOf(steps);
+      const lastDecided = steps.findLast((st) => st.decidedAt)?.decidedAt;
 
       const [exp] = await tx
         .insert(s.expenses)
@@ -364,17 +359,7 @@ export async function seed(db: DB) {
         })
         .returning({ id: s.approvalRequests.id });
 
-      await tx.insert(s.approvalSteps).values(
-        r.steps.map((st, i) => ({
-          requestId: req.id,
-          seq: i + 1,
-          role: st.role,
-          approverId: st.approverId,
-          decision: st.decision,
-          comment: st.comment,
-          decidedAt: st.decidedAt,
-        })),
-      );
+      await tx.insert(s.approvalSteps).values(steps.map((st) => ({ ...st, requestId: req.id })));
     }
   });
 }
