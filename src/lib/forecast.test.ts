@@ -69,7 +69,7 @@ describe("forecast", () => {
     const plans = [...flatPlan(1, 100), ...flatPlan(2, 100)];
     // November: item 1 committed 150 (over), item 2 nothing yet
     const f = forecast(plans, [exp({ lineItemId: 1, fiscalMonth: 11, amountUsdCents: 150, status: "committed" })], OCT);
-    expect(f.months[10]).toEqual({ month: 11, plan: 200, booked: 150, projected: 250 });
+    expect(f.months[10]).toEqual({ month: 11, plan: 200, booked: 150, actual: 0, committed: 150, projected: 250 });
   });
 
   it("adds unbudgeted spend on top of plan", () => {

@@ -40,7 +40,71 @@
   "dashboard": {
     "title": "Resumen de la planta",
     "headline": "Proyección de cierre: {amount} {direction, select, over {por encima} other {por debajo}} del presupuesto ({pct}).",
-    "asOf": "Año fiscal 2026 · al cierre de {month}"
+    "asOf": "Año fiscal 2026 · al cierre de {month}",
+    "driver": "Mayor sobregiro: {team}, {amount} por encima del plan.",
+    "noDriver": "Todos los equipos están dentro del plan.",
+    "kpi": {
+      "budget": "Presupuesto anual",
+      "actual": "Gasto real",
+      "actualHint": "{pct} del presupuesto · incl. devengado",
+      "committed": "Comprometido",
+      "committedHint": "Ordenado, aún sin factura",
+      "projected": "Proyección de cierre",
+      "variance": "Variación",
+      "varianceOver": "Proyección por encima del presupuesto",
+      "varianceUnder": "Proyección por debajo del presupuesto",
+      "nextFy": "Compromisos del próximo año",
+      "nextFyHint": "Excluidos del AF2026"
+    },
+    "byTeam": {
+      "title": "Proyección de cierre vs presupuesto",
+      "subtitle": "Por equipo, {currency}",
+      "budget": "Presupuesto",
+      "projected": "Proyección"
+    },
+    "heat": {
+      "title": "Gasto mensual vs plan",
+      "subtitle": "Porcentaje del plan de cada mes ya registrado. Selecciona una celda para abrir ese mes del equipo.",
+      "future": "Futuro",
+      "unplanned": "Sin plan",
+      "empty": "Sin plan ni gasto",
+      "over": "Más de 100%",
+      "cell": "{team}, {month}: {value}",
+      "legendScale": "≤50% · ≤80% · ≤95% · ≤100% del plan"
+    },
+    "monthly": {
+      "title": "Planeado vs comprometido vs real",
+      "subtitle": "Total de la planta por mes, {currency}",
+      "plan": "Planeado",
+      "actual": "Real",
+      "committed": "Comprometido",
+      "showTable": "Ver tabla de datos",
+      "month": "Mes"
+    },
+    "table": {
+      "title": "Equipos",
+      "team": "Equipo",
+      "budget": "Presupuesto",
+      "actual": "Real",
+      "committed": "Comprometido",
+      "projected": "Proyección",
+      "variance": "Variación",
+      "status": "Estado"
+    },
+    "approvals": {
+      "title": "Aprobaciones pendientes",
+      "count": "{count, plural, =0 {Nada en espera} one {# solicitud en espera} other {# solicitudes en espera}}",
+      "exposure": "{amount} aún fuera de la proyección",
+      "waitingOn": "Espera a {role}",
+      "yourTurn": "Tu decisión",
+      "approve": "Aprobar",
+      "reject": "Rechazar",
+      "approved": "Aprobada",
+      "rejected": "Rechazada",
+      "failed": "No se pudo registrar la decisión. Actualiza e intenta de nuevo.",
+      "empty": "No hay solicitudes en espera.",
+      "by": "{name} · {team}"
+    }
   },
   "team": {
     "title": "Presupuesto del equipo"
@@ -55,5 +119,10 @@
     "engineering": "Ingeniería",
     "it": "TI",
     "hr": "Recursos Humanos"
+  },
+  "status": {
+    "on_track": "En meta",
+    "at_risk": "En riesgo",
+    "over": "Sobre presupuesto"
   }
 }

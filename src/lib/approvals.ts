@@ -5,7 +5,7 @@ import type { StepDecision, StepRole } from "../db/schema";
 export type Step = {
   seq: number;
   role: StepRole;
-  approverId: number;
+  approverId: number | null; // nullable in the DB; null never matches a user
   decision: StepDecision;
   decidedAt?: Date | null;
   comment?: string | null;
@@ -65,7 +65,7 @@ export function outcomeOf(steps: Step[]): Outcome {
 }
 
 /** The step waiting for a decision now, or null once the request is closed. */
-export function currentStep(steps: Step[]): Step | null {
+export function currentStep<T extends Step>(steps: T[]): T | null {
   if (outcomeOf(steps) !== "pending") return null;
   return steps.toSorted((a, b) => a.seq - b.seq).find((s) => s.decision === "pending") ?? null;
 }

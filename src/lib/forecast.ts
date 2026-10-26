@@ -23,7 +23,8 @@ export type ExpenseRow = {
 };
 
 export type Status = "over" | "at_risk" | "on_track";
-export type MonthForecast = { month: number; plan: number; booked: number; projected: number };
+// booked = actual + committed (actual includes accrued)
+export type MonthForecast = { month: number; plan: number; booked: number; actual: number; committed: number; projected: number };
 export type Forecast = {
   budget: number;
   actual: number; // actual + accrued
@@ -59,6 +60,7 @@ export function forecast(plans: PlanRow[], expenses: ExpenseRow[], currentMonth:
 
   for (const p of plans) cell(p.lineItemId, p.month).plan += p.amountCents;
 
+  const months: MonthForecast[] = Array.from({ length: 12 }, (_, i) => ({ month: i + 1, plan: 0, booked: 0, actual: 0, committed: 0, projected: 0 }));
   let actual = 0, committed = 0, pendingExposure = 0, nextFy = 0;
   for (const e of expenses) {
     if (e.approval === "rejected") continue;
@@ -71,11 +73,16 @@ export function forecast(plans: PlanRow[], expenses: ExpenseRow[], currentMonth:
       continue;
     }
     cell(e.lineItemId, e.fiscalMonth).booked += e.amountUsdCents;
-    if (e.status === "committed") committed += e.amountUsdCents;
-    else actual += e.amountUsdCents;
+    const m = months[e.fiscalMonth - 1];
+    if (e.status === "committed") {
+      committed += e.amountUsdCents;
+      m.committed += e.amountUsdCents;
+    } else {
+      actual += e.amountUsdCents;
+      m.actual += e.amountUsdCents;
+    }
   }
 
-  const months = Array.from({ length: 12 }, (_, i) => ({ month: i + 1, plan: 0, booked: 0, projected: 0 }));
   for (const c of cells.values()) {
     const m = months[c.month - 1];
     m.plan += c.plan;
