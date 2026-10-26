@@ -2,7 +2,7 @@
   "app": {
     "name": "Control de Presupuesto",
     "site": "Cobalt Industrial – Planta Monterrey",
-    "demoBanner": "Demo pública · datos ficticios · se reinicia a diario a las 03:00 UTC"
+    "demoBanner": "Demo pública · datos ficticios · se reinicia cada noche"
   },
   "roles": {
     "executive": "Ejecutivo",

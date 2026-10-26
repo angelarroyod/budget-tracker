@@ -1,5 +1,7 @@
 # Budget Tracker
 
+[![CI](https://github.com/angelarroyod/budget-tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/angelarroyod/budget-tracker/actions/workflows/ci.yml)
+
 A site budget tracker for a manufacturing plant that answers one question in ten seconds:
 **where is spend today, and where will it land at year end?**
 
@@ -19,7 +21,7 @@ so it can run as a public demo. No code, data or terminology comes from that emp
 
 ## Try it
 
-Pick a role on the login screen. Data resets every night at 03:00 UTC, so click freely.
+Pick a role on the login screen. Data resets every night (scheduled for 03:00 UTC; Vercel Hobby runs it within that hour), so click freely.
 
 | Role | Try this |
 |---|---|

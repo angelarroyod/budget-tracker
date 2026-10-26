@@ -164,7 +164,7 @@ Seed is a deterministic script (`db/seed.ts`, fixed random seed) so screenshots 
 - **Authorization runs on the server for every query and action.** A champion can't read or write another team by editing a URL or form. The UI hiding things is not security.
 - **Reset**: Vercel Cron hits `/api/reset` nightly (protected by `CRON_SECRET`) → truncate + reseed.
 - **Invoice upload**: seeded expenses link to sample PDFs in `/public/invoices`. Upload is disabled in the demo (tooltip: "Disabled in public demo") to avoid hosting arbitrary files. Wire to Vercel Blob later if wanted.
-- Banner: "Public demo · fictional data · resets daily at 03:00 UTC".
+- Banner: "Public demo · fictional data · resets nightly". The cron is scheduled for 03:00 UTC, but Vercel Hobby runs it anywhere in that hour, so the banner names no exact time.
 
 ---
 

@@ -2,7 +2,7 @@
   "app": {
     "name": "Budget Tracker",
     "site": "Cobalt Industrial – Monterrey Plant",
-    "demoBanner": "Public demo · fictional data · resets daily at 03:00 UTC"
+    "demoBanner": "Public demo · fictional data · resets nightly"
   },
   "roles": {
     "executive": "Executive",
