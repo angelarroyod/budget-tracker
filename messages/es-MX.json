@@ -107,7 +107,51 @@
     }
   },
   "team": {
-    "title": "Presupuesto del equipo"
+    "title": "Presupuesto del equipo",
+    "back": "Resumen de la planta",
+    "driver": "Mayor sobregiro: {item}, {amount} por encima del plan.",
+    "noDriver": "Todas las partidas están dentro del plan.",
+    "byItem": {
+      "title": "Proyección de cierre vs plan",
+      "subtitle": "Por partida, {currency}"
+    },
+    "unbudgeted": "No presupuestado (aprobado)",
+    "items": {
+      "title": "Partidas",
+      "item": "Partida",
+      "planned": "Planeado",
+      "committed": "Comprometido",
+      "actual": "Real",
+      "projected": "Proyección",
+      "variance": "Variación",
+      "status": "Estado",
+      "total": "Total del equipo"
+    },
+    "savings": {
+      "title": "Ahorros",
+      "headline": "{amount} ahorrados a la fecha",
+      "explain": "Plan no ejercido en meses cerrados, neto por partida."
+    },
+    "month": {
+      "title": "Gastos de {month}",
+      "clear": "Quitar mes",
+      "hint": "Selecciona un mes en el mapa de calor para ver sus gastos.",
+      "empty": "No hay gastos registrados este mes.",
+      "description": "Descripción",
+      "lineItem": "Partida",
+      "vendor": "Proveedor",
+      "status": "Estado",
+      "original": "Monto original",
+      "usd": "USD",
+      "unbudgeted": "No presupuestado",
+      "nextFy": "Próximo AF",
+      "approval": {
+        "pending": "Aprobación pendiente",
+        "approved": "Aprobado",
+        "rejected": "Rechazado"
+      }
+    },
+    "monthlySubtitle": "Total del equipo por mes, {currency}"
   },
   "comingSoon": "Esta pantalla llega en la fase {phase}.",
   "teams": {
@@ -124,5 +168,10 @@
     "on_track": "En meta",
     "at_risk": "En riesgo",
     "over": "Sobre presupuesto"
+  },
+  "expenseStatus": {
+    "committed": "Comprometido",
+    "accrued": "Devengado",
+    "actual": "Real"
   }
 }

@@ -1,9 +1,7 @@
-import type { Messages } from "next-intl";
 import { getFormatter, getTranslations } from "next-intl/server";
 import Link from "next/link";
-import { CURRENT_MONTH, fiscalMonthDate, heatCell, type HeatCell } from "@/lib/forecast";
+import { CURRENT_MONTH, fiscalMonthDate, heatCell, type HeatCell, type MonthForecast } from "@/lib/forecast";
 import { percent } from "@/lib/format";
-import type { TeamSnapshot } from "@/lib/queries";
 
 /** Sequential blue up to 100% of plan; red only above 100% (already over). */
 function cellStyle(c: HeatCell): React.CSSProperties {
@@ -17,12 +15,11 @@ function cellStyle(c: HeatCell): React.CSSProperties {
   return { background: "var(--heat-empty)", color: "var(--muted-foreground)" };
 }
 
-export async function HeatMap({ teams }: { teams: TeamSnapshot[] }) {
-  const [t, tTeams, format] = await Promise.all([
-    getTranslations("dashboard.heat"),
-    getTranslations("teams"),
-    getFormatter(),
-  ]);
+/** One heat-map row: a team (site view) or a line item (team view). `href` makes past/current cells links. */
+export type HeatRow = { id: number; label: string; months: MonthForecast[]; href: (month: number) => string };
+
+export async function HeatMap({ rows, selectedMonth }: { rows: HeatRow[]; selectedMonth?: number }) {
+  const [t, format] = await Promise.all([getTranslations("dashboard.heat"), getFormatter()]);
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const monthShort = (m: number) => format.dateTime(fiscalMonthDate(m), { month: "short" });
   const monthLong = (m: number) => format.dateTime(fiscalMonthDate(m), { month: "long" });
@@ -41,17 +38,22 @@ export async function HeatMap({ teams }: { teams: TeamSnapshot[] }) {
           <div role="row" className="contents">
             <span role="columnheader" />
             {months.map((m) => (
-              <span key={m} role="columnheader" className="pb-1 text-center text-muted-foreground">
+              <span
+                key={m}
+                role="columnheader"
+                aria-current={m === selectedMonth ? "true" : undefined}
+                className={`pb-1 text-center ${m === selectedMonth ? "font-semibold text-foreground" : "text-muted-foreground"}`}
+              >
                 {monthShort(m)}
               </span>
             ))}
           </div>
-          {teams.map((team) => {
-            const name = tTeams(team.key as keyof Messages["teams"]);
+          {rows.map((row) => {
+            const name = row.label;
             return (
-              <div role="row" key={team.id} className="contents">
+              <div role="row" key={row.id} className="contents">
                 <span role="rowheader" className="flex items-center pr-2 font-medium">{name}</span>
-                {team.forecast.months.map((m) => {
+                {row.months.map((m) => {
                   const c = heatCell(m.plan, m.booked, m.month, CURRENT_MONTH);
                   const text = c.kind === "pct" ? label(c) : c.kind === "future" ? "—" : label(c);
                   const aria = t("cell", { team: name, month: monthLong(m.month), value: label(c) });
@@ -62,10 +64,10 @@ export async function HeatMap({ teams }: { teams: TeamSnapshot[] }) {
                     <Link
                       key={m.month}
                       role="cell"
-                      href={`/teams/${team.id}?month=${m.month}`}
+                      href={row.href(m.month)}
                       aria-label={aria}
                       title={aria}
-                      className={`${cls} outline-offset-2 hover:ring-2 hover:ring-foreground/40 focus-visible:outline-2 focus-visible:outline-ring`}
+                      className={`${cls} outline-offset-2 hover:ring-2 hover:ring-foreground/40 focus-visible:outline-2 focus-visible:outline-ring ${m.month === selectedMonth ? "ring-2 ring-foreground" : ""}`}
                       style={cellStyle(c)}
                     >
                       {text}

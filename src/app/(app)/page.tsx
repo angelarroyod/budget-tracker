@@ -5,26 +5,14 @@ import { redirect } from "next/navigation";
 import { HeatMap } from "@/components/dashboard/heat-map";
 import { KpiCards } from "@/components/dashboard/kpi-cards";
 import { MonthlyChart } from "@/components/dashboard/monthly-chart";
+import { Panel } from "@/components/dashboard/panel";
 import { PendingApprovals } from "@/components/dashboard/pending-approvals";
-import { TeamChart } from "@/components/dashboard/team-chart";
+import { BudgetBarChart } from "@/components/dashboard/budget-bar-chart";
 import { TeamTable } from "@/components/dashboard/team-table";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCurrentUser, homePath } from "@/lib/dal";
 import { CURRENT_MONTH, fiscalMonthDate } from "@/lib/forecast";
 import { money, percent } from "@/lib/format";
 import { getSiteSnapshot } from "@/lib/queries";
-
-function Panel({ title, description, className, children }: { title: string; description?: string; className?: string; children: React.ReactNode }) {
-  return (
-    <Card className={className}>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        {description && <CardDescription>{description}</CardDescription>}
-      </CardHeader>
-      <CardContent>{children}</CardContent>
-    </Card>
-  );
-}
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -66,7 +54,7 @@ export default async function DashboardPage() {
 
       <div className="grid gap-4 xl:grid-cols-3">
         <Panel title={t("byTeam.title")} description={t("byTeam.subtitle", { currency: "USD" })} className="xl:col-span-2">
-          <TeamChart
+          <BudgetBarChart
             data={teams
               .toSorted((a, b) => b.forecast.budget - a.forecast.budget)
               .map((x) => ({ name: teamName(x.key), budget: x.forecast.budget, projected: x.forecast.projected, status: x.forecast.status }))}
@@ -78,7 +66,11 @@ export default async function DashboardPage() {
       </div>
 
       <Panel title={t("heat.title")} description={t("heat.subtitle")}>
-        <HeatMap teams={teams.toSorted((a, b) => b.forecast.budget - a.forecast.budget)} />
+        <HeatMap
+          rows={teams
+            .toSorted((a, b) => b.forecast.budget - a.forecast.budget)
+            .map((x) => ({ id: x.id, label: teamName(x.key), months: x.forecast.months, href: (m: number) => `/teams/${x.id}?month=${m}#month` }))}
+        />
       </Panel>
 
       <Panel title={t("monthly.title")} description={t("monthly.subtitle", { currency: "USD" })}>

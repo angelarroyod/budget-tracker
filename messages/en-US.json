@@ -107,7 +107,51 @@
     }
   },
   "team": {
-    "title": "Team budget"
+    "title": "Team budget",
+    "back": "Site overview",
+    "driver": "Largest overrun: {item}, {amount} over plan.",
+    "noDriver": "Every line item is within plan.",
+    "byItem": {
+      "title": "Projected year-end vs plan",
+      "subtitle": "By line item, {currency}"
+    },
+    "unbudgeted": "Unbudgeted (approved)",
+    "items": {
+      "title": "Line items",
+      "item": "Line item",
+      "planned": "Planned",
+      "committed": "Committed",
+      "actual": "Actual",
+      "projected": "Projected",
+      "variance": "Variance",
+      "status": "Status",
+      "total": "Team total"
+    },
+    "savings": {
+      "title": "Savings",
+      "headline": "{amount} saved so far",
+      "explain": "Unspent plan in closed months, netted per line item."
+    },
+    "month": {
+      "title": "Expenses in {month}",
+      "clear": "Clear month",
+      "hint": "Select a month in the heat map to see its expenses.",
+      "empty": "No expenses booked this month.",
+      "description": "Description",
+      "lineItem": "Line item",
+      "vendor": "Vendor",
+      "status": "Status",
+      "original": "Original amount",
+      "usd": "USD",
+      "unbudgeted": "Unbudgeted",
+      "nextFy": "Next FY",
+      "approval": {
+        "pending": "Pending approval",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      }
+    },
+    "monthlySubtitle": "Team total by month, {currency}"
   },
   "comingSoon": "This screen is coming in phase {phase}.",
   "teams": {
@@ -124,5 +168,10 @@
     "on_track": "On track",
     "at_risk": "At risk",
     "over": "Over budget"
+  },
+  "expenseStatus": {
+    "committed": "Committed",
+    "accrued": "Accrued",
+    "actual": "Actual"
   }
 }

@@ -6,7 +6,7 @@ import { StatusBadge } from "@/components/status-badge";
 import type { Status } from "@/lib/forecast";
 import { compact, money } from "@/lib/format";
 
-export type TeamBar = { name: string; budget: number; projected: number; status: Status };
+export type BudgetBar = { name: string; budget: number; projected: number; status: Status };
 
 const STATUS_FILL: Record<Status, string> = {
   on_track: "var(--status-good)",
@@ -14,8 +14,8 @@ const STATUS_FILL: Record<Status, string> = {
   over: "var(--status-critical)",
 };
 
-/** Budget (neutral) beside projected (filled by status). Status is also named in the tooltip and the team table. */
-export function TeamChart({ data }: { data: TeamBar[] }) {
+/** Budget (neutral) beside projected (filled by status) per row — teams or line items. Status is also named in the tooltip and the tables. */
+export function BudgetBarChart({ data, labelWidth = 120 }: { data: BudgetBar[]; labelWidth?: number }) {
   const t = useTranslations("dashboard.byTeam");
   const format = useFormatter();
 
@@ -46,7 +46,7 @@ export function TeamChart({ data }: { data: TeamBar[] }) {
           <YAxis
             type="category"
             dataKey="name"
-            width={120}
+            width={labelWidth}
             tick={{ fill: "var(--foreground)", fontSize: 12 }}
             axisLine={false}
             tickLine={false}
@@ -54,7 +54,7 @@ export function TeamChart({ data }: { data: TeamBar[] }) {
           <Tooltip
             cursor={{ fill: "var(--muted)", opacity: 0.5 }}
             content={({ active, payload }) => {
-              const d = payload?.[0]?.payload as TeamBar | undefined;
+              const d = payload?.[0]?.payload as BudgetBar | undefined;
               if (!active || !d) return null;
               return (
                 <div className="rounded-lg border bg-popover p-2.5 text-xs text-popover-foreground shadow-md">
