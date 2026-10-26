@@ -1,0 +1,59 @@
+{
+  "app": {
+    "name": "Control de Presupuesto",
+    "site": "Cobalt Industrial – Planta Monterrey",
+    "demoBanner": "Demo pública · datos ficticios · se reinicia a diario a las 03:00 UTC"
+  },
+  "roles": {
+    "executive": "Ejecutivo",
+    "champion": "Responsable",
+    "delegate": "Delegado",
+    "finance": "Aprobador de Finanzas"
+  },
+  "login": {
+    "title": "Entra a la demo",
+    "subtitle": "Elige un rol para explorar. No se necesita contraseña.",
+    "asExecutive": "Ejecutivo",
+    "asExecutiveHint": "Ve los 8 equipos y aprueba gastos no presupuestados.",
+    "asChampion": "Responsable · Instalaciones",
+    "asChampionHint": "Administra el presupuesto de un equipo y sus partidas.",
+    "asFinance": "Finanzas",
+    "asFinanceHint": "Segunda aprobación para gastos sobre el umbral."
+  },
+  "nav": {
+    "label": "Navegación principal",
+    "dashboard": "Tablero",
+    "myTeam": "Mi equipo",
+    "expenses": "Gastos",
+    "approvals": "Aprobaciones",
+    "openMenu": "Abrir menú"
+  },
+  "topbar": {
+    "fiscalYear": "Año fiscal",
+    "language": "Idioma",
+    "theme": "Tema",
+    "themeLight": "Claro",
+    "themeDark": "Oscuro",
+    "themeSystem": "Sistema",
+    "switchRole": "Cambiar de rol"
+  },
+  "dashboard": {
+    "title": "Resumen de la planta",
+    "headline": "Proyección de cierre: {amount} {direction, select, over {por encima} other {por debajo}} del presupuesto ({pct}).",
+    "asOf": "Año fiscal 2026 · al cierre de {month}"
+  },
+  "team": {
+    "title": "Presupuesto del equipo"
+  },
+  "comingSoon": "Esta pantalla llega en la fase {phase}.",
+  "teams": {
+    "facilities": "Instalaciones",
+    "operations": "Operaciones",
+    "ehs": "EHS",
+    "quality": "Calidad",
+    "maintenance": "Mantenimiento",
+    "engineering": "Ingeniería",
+    "it": "TI",
+    "hr": "Recursos Humanos"
+  }
+}

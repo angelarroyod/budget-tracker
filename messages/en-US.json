@@ -1,0 +1,59 @@
+{
+  "app": {
+    "name": "Budget Tracker",
+    "site": "Cobalt Industrial – Monterrey Plant",
+    "demoBanner": "Public demo · fictional data · resets daily at 03:00 UTC"
+  },
+  "roles": {
+    "executive": "Executive",
+    "champion": "Champion",
+    "delegate": "Delegate",
+    "finance": "Finance approver"
+  },
+  "login": {
+    "title": "Sign in to the demo",
+    "subtitle": "Pick a role to explore. No password needed.",
+    "asExecutive": "Executive",
+    "asExecutiveHint": "Sees all 8 teams, approves unbudgeted spend.",
+    "asChampion": "Champion · Facilities",
+    "asChampionHint": "Owns one team's budget and its line items.",
+    "asFinance": "Finance",
+    "asFinanceHint": "Second approval on spend above the threshold."
+  },
+  "nav": {
+    "label": "Main navigation",
+    "dashboard": "Dashboard",
+    "myTeam": "My team",
+    "expenses": "Expenses",
+    "approvals": "Approvals",
+    "openMenu": "Open menu"
+  },
+  "topbar": {
+    "fiscalYear": "Fiscal year",
+    "language": "Language",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "switchRole": "Switch role"
+  },
+  "dashboard": {
+    "title": "Site overview",
+    "headline": "Projected to finish {amount} {direction, select, over {over} other {under}} budget ({pct}).",
+    "asOf": "Fiscal year 2026 · as of {month}"
+  },
+  "team": {
+    "title": "Team budget"
+  },
+  "comingSoon": "This screen is coming in phase {phase}.",
+  "teams": {
+    "facilities": "Facilities",
+    "operations": "Operations",
+    "ehs": "EHS",
+    "quality": "Quality",
+    "maintenance": "Maintenance",
+    "engineering": "Engineering",
+    "it": "IT",
+    "hr": "HR"
+  }
+}

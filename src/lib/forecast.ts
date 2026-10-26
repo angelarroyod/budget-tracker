@@ -2,6 +2,9 @@ import type { ExpenseStatus } from "../db/schema";
 
 /** SPEC §2.3–2.6. Pure functions over USD cents; callers filter rows to a site, team or line item. */
 
+/** The demo is frozen at October 2026 so the story and numbers stay stable. */
+export const CURRENT_MONTH = 10;
+
 export type PlanRow = { lineItemId: number; month: number; amountCents: number };
 export type ExpenseRow = {
   lineItemId: number | null; // null = unbudgeted

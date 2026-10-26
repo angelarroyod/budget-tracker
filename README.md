@@ -15,7 +15,7 @@ No Docker or Postgres install needed: `db:local` runs an embedded Postgres (PGli
 
 ```bash
 pnpm install
-cp .env.example .env
+cp .env.example .env # then set SESSION_SECRET to 32+ random characters
 pnpm db:local        # terminal 1: keep running
 pnpm db:migrate      # terminal 2
 pnpm db:seed
@@ -32,5 +32,14 @@ pnpm dev
 | `db:seed` | Wipe and reload deterministic demo data |
 | `db:studio` | Browse the DB in Drizzle Studio |
 | `typecheck` | Generate Next route types, then `tsc` |
+
+## Deploying
+
+Vercel needs two environment variables:
+
+| Variable | Value |
+|---|---|
+| `DATABASE_URL` | Neon pooled connection string (set automatically by the Vercel Neon integration) |
+| `SESSION_SECRET` | 32+ random characters; signs the demo session cookie |
 
 All data is fictional.

@@ -115,7 +115,7 @@ Constraints worth putting in the DB, not app code: `CHECK (month BETWEEN 1 AND 1
 | Route | Who | Content |
 |---|---|---|
 | `/login` | all | 3 buttons: **Executive**, **Champion (Facilities)**, **Finance**. "Demo data resets daily." |
-| `/` | executive | Headline sentence · 6 KPI cards · projected vs budget by team (bar) · heat map · monthly planned/booked (bar + line) · team table · pending approvals panel |
+| `/` | executive, finance | Headline sentence · 6 KPI cards · projected vs budget by team (bar) · heat map · monthly planned/booked (bar + line) · team table · pending approvals panel |
 | `/teams/[id]` | executive, that team's champion | Same layout scoped to one team + line items table (plan / committed / actual / projected) + savings callout. `?month=N` filters expenses to that month. |
 | `/expenses` | all (champion scoped to team) | Filterable table (team, month, status, currency, approval) · add/edit in a Sheet |
 | `/approvals` | executive, finance, champion | Queue of requests waiting on *my* step · quick approve/reject |

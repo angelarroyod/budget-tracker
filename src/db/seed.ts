@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { outcomeOf, type Step } from "../lib/approvals";
+import { CURRENT_MONTH } from "../lib/forecast";
 import { type Currency, toUsdCents } from "../lib/fx";
 import * as s from "./schema";
 
@@ -16,7 +17,7 @@ import * as s from "./schema";
 
 type DB = PostgresJsDatabase<typeof s>;
 
-const CURRENT_MONTH = 10;
+
 
 // mulberry32 — tiny deterministic PRNG
 function rng(seed: number) {
