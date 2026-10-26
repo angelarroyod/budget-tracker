@@ -3,7 +3,14 @@ import type { ExpenseStatus } from "../db/schema";
 /** SPEC §2.3–2.6. Pure functions over USD cents; callers filter rows to a site, team or line item. */
 
 /** The demo is frozen at October 2026 so the story and numbers stay stable. */
+export const FISCAL_YEAR = 2026;
 export const CURRENT_MONTH = 10;
+
+/**
+ * A Date for labelling a fiscal month. Mid-month in UTC, so formatting it in any timezone
+ * (servers run in UTC, the plant is UTC−6) never slips into the neighbouring month.
+ */
+export const fiscalMonthDate = (month: number) => new Date(Date.UTC(FISCAL_YEAR, month - 1, 15));
 
 export type PlanRow = { lineItemId: number; month: number; amountCents: number };
 export type ExpenseRow = {

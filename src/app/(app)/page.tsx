@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { expenses, plans } from "@/db/schema";
 import { getCurrentUser, homePath } from "@/lib/dal";
-import { CURRENT_MONTH, forecast } from "@/lib/forecast";
+import { CURRENT_MONTH, fiscalMonthDate, forecast } from "@/lib/forecast";
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -23,7 +23,7 @@ export default async function DashboardPage() {
     <div className="max-w-4xl">
       <h1 className="text-2xl font-semibold">{t("title")}</h1>
       <p className="text-sm text-muted-foreground">
-        {t("asOf", { month: format.dateTime(new Date(2026, CURRENT_MONTH - 1, 1), { month: "long" }) })}
+        {t("asOf", { month: format.dateTime(fiscalMonthDate(CURRENT_MONTH), { month: "long" }) })}
       </p>
       <p className="mt-6 text-lg tabular-nums">
         {t("headline", {

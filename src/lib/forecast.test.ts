@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { type ExpenseRow, forecast, heatCell, type PlanRow, projectMonth, savings, statusOf } from "./forecast";
+import { type ExpenseRow, fiscalMonthDate, forecast, heatCell, type PlanRow, projectMonth, savings, statusOf } from "./forecast";
 
 const OCT = 10;
 
@@ -144,5 +144,13 @@ describe("savings", () => {
   it("nets overspend against underspend and never goes negative", () => {
     const expenses = Array.from({ length: 9 }, (_, i) => exp({ fiscalMonth: i + 1, amountUsdCents: 150 }));
     expect(savings(forecast(flatPlan(1, 100), expenses, OCT), OCT)).toBe(0);
+  });
+});
+
+describe("fiscalMonthDate", () => {
+  // Servers run in UTC; viewers and the plant are elsewhere. The label must not slip a month.
+  it.each(["UTC", "America/Monterrey", "Pacific/Pago_Pago", "Pacific/Kiritimati"])("labels every month correctly in %s", (timeZone) => {
+    const fmt = new Intl.DateTimeFormat("en-US", { month: "numeric", timeZone });
+    for (let m = 1; m <= 12; m++) expect(fmt.format(fiscalMonthDate(m))).toBe(String(m));
   });
 });
