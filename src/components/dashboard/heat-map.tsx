@@ -3,15 +3,20 @@ import Link from "next/link";
 import { CURRENT_MONTH, fiscalMonthDate, heatCell, type HeatCell, type MonthForecast } from "@/lib/forecast";
 import { percent } from "@/lib/format";
 
-/** Sequential blue up to 100% of plan; red only above 100% (already over). */
+/**
+ * Sequential blue up to 100% of the month's plan; amber + ▲ above it. Not red: one hot month doesn't mean the team
+ * is over its annual budget, and red is reserved for that (SPEC §2.4).
+ */
+const OVER: React.CSSProperties = { background: "var(--status-warning)", color: "#0b0b0b" };
+
 function cellStyle(c: HeatCell): React.CSSProperties {
   if (c.kind === "pct") {
-    if (c.over) return { background: "var(--status-critical)", color: "#fff" };
+    if (c.over) return OVER;
     // Buckets crowd near 100%: most months land at 80–100% of plan, so that band gets two steps.
     const step = c.pct <= 0.5 ? 1 : c.pct <= 0.8 ? 2 : c.pct <= 0.95 ? 3 : 4;
     return { background: `var(--heat-${step})`, color: `var(--heat-ink-${step})` };
   }
-  if (c.kind === "unplanned") return { background: "var(--status-critical)", color: "#fff" };
+  if (c.kind === "unplanned") return OVER;
   return { background: "var(--heat-empty)", color: "var(--muted-foreground)" };
 }
 
@@ -55,7 +60,7 @@ export async function HeatMap({ rows, selectedMonth }: { rows: HeatRow[]; select
                 <span role="rowheader" className="flex items-center pr-2 font-medium">{name}</span>
                 {row.months.map((m) => {
                   const c = heatCell(m.plan, m.booked, m.month, CURRENT_MONTH);
-                  const text = c.kind === "pct" ? label(c) : c.kind === "future" ? "—" : label(c);
+                  const text = c.kind === "future" ? "—" : (c.kind === "unplanned" || (c.kind === "pct" && c.over) ? "▲ " : "") + label(c);
                   const aria = t("cell", { team: name, month: monthLong(m.month), value: label(c) });
                   const cls = "flex h-9 items-center justify-center rounded-md tabular-nums";
                   return c.kind === "future" ? (
@@ -89,8 +94,8 @@ export async function HeatMap({ rows, selectedMonth }: { rows: HeatRow[]; select
           {t("legendScale")}
         </li>
         <li className="flex items-center gap-1.5">
-          <span className="size-2.5 rounded-sm" style={{ background: "var(--status-critical)" }} aria-hidden />
-          {t("over")} / {t("unplanned")}
+          <span className="size-2.5 rounded-sm" style={{ background: "var(--status-warning)" }} aria-hidden />
+          ▲ {t("over")} / {t("unplanned")}
         </li>
         <li className="flex items-center gap-1.5">
           <span className="size-2.5 rounded-sm" style={{ background: "var(--heat-empty)" }} aria-hidden />

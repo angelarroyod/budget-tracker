@@ -64,8 +64,8 @@ Red means **only** "already over budget". Never as decoration.
 ### 2.5 Heat map cell (team × month)
 - Value = `booked / plan` for that month.
 - Future months (> current): neutral gray, no %, shown as "—".
-- `plan = 0` and `booked = 0`: gray "—". `plan = 0` and `booked > 0`: red "Unplanned".
-- Color scale: neutral blue ramp 0–100%, **red only above 100%**. Each cell prints its % (no color alone).
+- `plan = 0` and `booked = 0`: gray "—". `plan = 0` and `booked > 0`: amber "▲ Unplanned".
+- Color scale: neutral blue ramp 0–100%, **amber with ▲ above 100%**. Not red: a month over its plan doesn't mean the team is over budget, and red means only that (§2.4). Each cell prints its % (no color alone).
 - Click opens `/teams/[id]?month=N`.
 
 ### 2.6 Savings callout

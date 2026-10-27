@@ -69,7 +69,7 @@
       "future": "Future",
       "unplanned": "Unplanned",
       "empty": "No plan",
-      "over": "Over 100%",
+      "over": "Over the month’s plan",
       "cell": "{team}, {month}: {value}",
       "legendScale": "≤50% · ≤80% · ≤95% · ≤100% of plan"
     },
