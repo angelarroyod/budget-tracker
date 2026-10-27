@@ -5,7 +5,7 @@ import { ForecastChart } from "./forecast-chart";
 import { SURFACE } from "./panel";
 
 /** Where the year lands: the projected total and what it's made of, beside the burn-up chart that shows how it gets there. */
-export async function Projection({ f }: { f: Forecast }) {
+export async function Projection({ f, scope = "site" }: { f: Forecast; scope?: "site" | "team" }) {
   const [t, format] = await Promise.all([getTranslations("dashboard.projection"), getFormatter()]);
   const share = (cents: number) => `${Math.min(100, (cents / f.budget) * 100).toFixed(2)}%`;
   const parts = [
@@ -60,6 +60,7 @@ export async function Projection({ f }: { f: Forecast }) {
         months={f.months}
         budget={f.budget}
         currentMonth={CURRENT_MONTH}
+        scope={scope}
         monthly={f.months.map((m) => ({
           label: format.dateTime(fiscalMonthDate(m.month), { month: "short" }),
           plan: m.plan,
