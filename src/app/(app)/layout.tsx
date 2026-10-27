@@ -48,9 +48,10 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
           <span className="font-semibold lg:hidden">{tApp("name")}</span>
 
           <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
-            {/* Only FY2026 in the MVP; the selector shows where multi-year will plug in */}
+            {/* Only FY2026 in the MVP; the selector shows where multi-year will plug in. Hidden on phones, where a
+                disabled control isn't worth a header row (the page subtitle already names the fiscal year). */}
             <Select value="FY2026" disabled>
-              <SelectTrigger size="sm" aria-label={tTop("fiscalYear")}>
+              <SelectTrigger size="sm" aria-label={tTop("fiscalYear")} className="hidden sm:flex">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

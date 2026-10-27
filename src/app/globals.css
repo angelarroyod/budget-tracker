@@ -131,6 +131,30 @@
   html {
     @apply font-sans;
   }
+  /* Tailwind 4's preflight resets buttons to cursor: default. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+  /* sm/default buttons are 28-32px: fine for a mouse, too small for a finger. Grow to 44px on touch screens only. */
+  @media (pointer: coarse) {
+    /* Triggers (sheet, menu, select) render a Button but overwrite its data-slot. */
+    [data-slot="button"],
+    button[data-slot$="-trigger"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 /* Data colors (dataviz reference palette). Status hues are reserved: red = already over budget, nothing else. */
 :root {
