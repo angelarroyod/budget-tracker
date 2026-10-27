@@ -30,16 +30,17 @@ export default async function DashboardPage() {
   return (
     <div className="mx-auto flex max-w-[1400px] flex-col gap-4">
       <header>
-        <h1 className="text-2xl font-semibold">{t("title")}</h1>
-        <p className="text-sm text-muted-foreground">
-          {t("asOf", { month: format.dateTime(fiscalMonthDate(CURRENT_MONTH), { month: "long" }) })}
-        </p>
-        <p className="mt-3 text-lg tabular-nums">
+        <h1 className="text-sm font-medium text-muted-foreground">
+          {t("title")} · {t("asOf", { month: format.dateTime(fiscalMonthDate(CURRENT_MONTH), { month: "long" }) })}
+        </h1>
+        <p className="mt-2 max-w-4xl text-2xl font-semibold tracking-tight text-balance tabular-nums md:text-3xl">
           {t("headline", {
             amount: money(format, Math.abs(site.variance)),
             direction: site.variance < 0 ? "over" : "under",
             pct: percent(format, (site.projected - site.budget) / site.budget, true),
-          })}{" "}
+          })}
+        </p>
+        <p className="mt-1 text-base">
           {driver && driver.forecast.variance < 0 ? (
             <Link href={`/teams/${driver.id}`} className="text-muted-foreground underline decoration-muted-foreground/50 underline-offset-4 hover:decoration-foreground">
               {t("driver", { team: teamName(driver.key), amount: money(format, -driver.forecast.variance) })}
@@ -52,13 +53,17 @@ export default async function DashboardPage() {
 
       <KpiCards f={site} />
 
-      <div className="grid gap-4 xl:grid-cols-3">
+      <div className="grid items-start gap-4 xl:grid-cols-3">
+        {/* Chart and table answer the same question (where each team lands), so they share one panel. */}
         <Panel title={t("byTeam.title")} description={t("byTeam.subtitle", { currency: "USD" })} className="xl:col-span-2">
           <BudgetBarChart
             data={teams
               .toSorted((a, b) => b.forecast.budget - a.forecast.budget)
               .map((x) => ({ name: teamName(x.key), budget: x.forecast.budget, projected: x.forecast.projected, status: x.forecast.status }))}
           />
+          <div className="mt-6">
+            <TeamTable teams={teams} site={site} />
+          </div>
         </Panel>
         <Panel title={t("approvals.title")}>
           <PendingApprovals requests={pending} exposure={site.pendingExposure} user={user} />
@@ -82,10 +87,6 @@ export default async function DashboardPage() {
             committed: m.committed,
           }))}
         />
-      </Panel>
-
-      <Panel title={t("table.title")}>
-        <TeamTable teams={teams} site={site} />
       </Panel>
     </div>
   );

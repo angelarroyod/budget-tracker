@@ -68,12 +68,14 @@ export default async function TeamPage({ params, searchParams }: PageProps<"/tea
           <StatusBadge status={f.status} />
         </div>
         <p className="text-sm text-muted-foreground">{tDash("asOf", { month: monthLong(CURRENT_MONTH) })}</p>
-        <p className="mt-3 text-lg tabular-nums">
+        <p className="mt-3 max-w-4xl text-2xl font-semibold tracking-tight text-balance tabular-nums md:text-3xl">
           {tDash("headline", {
             amount: money(format, Math.abs(f.variance)),
             direction: f.variance < 0 ? "over" : "under",
             pct: percent(format, (f.projected - f.budget) / f.budget, true),
-          })}{" "}
+          })}
+        </p>
+        <p className="mt-1 text-base">
           <span className="text-muted-foreground">
             {driver && driver.forecast.variance < 0
               ? t("driver", { item: driver.label, amount: money(format, -driver.forecast.variance) })
