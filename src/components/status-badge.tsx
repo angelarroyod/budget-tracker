@@ -14,7 +14,7 @@ export function StatusBadge({ status }: { status: Status }) {
   const { icon: Icon, color } = STYLE[status];
   return (
     <span
-      className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium whitespace-nowrap"
+      className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium whitespace-nowrap text-foreground"
       style={{ borderColor: `color-mix(in oklab, ${color} 45%, transparent)`, backgroundColor: `color-mix(in oklab, ${color} 12%, transparent)` }}
     >
       <Icon className="size-3.5 shrink-0" style={{ color }} aria-hidden />

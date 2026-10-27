@@ -2,6 +2,7 @@ import { getFormatter, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { CURRENT_MONTH, fiscalMonthDate, heatCell, type HeatCell, type MonthForecast } from "@/lib/forecast";
 import { percent } from "@/lib/format";
+import { HeatGrid } from "./heat-grid";
 
 /**
  * Sequential blue up to 100% of the month's plan; amber + ▲ above it. Not red: one hot month doesn't mean the team
@@ -32,13 +33,18 @@ export async function HeatMap({ rows, selectedMonth }: { rows: HeatRow[]; select
   const label = (c: HeatCell) =>
     c.kind === "pct" ? percent(format, c.pct) : c.kind === "unplanned" ? t("unplanned") : c.kind === "future" ? t("future") : t("empty");
 
+  // One tab stop for the whole grid: the selected month's first link, else the current month's (HeatGrid moves from there).
+  const startCol = selectedMonth ?? CURRENT_MONTH;
+
   return (
     <div>
       <div className="overflow-x-auto">
-        <div
+        <HeatGrid
           className="grid min-w-[44rem] gap-0.5 text-xs"
           style={{ gridTemplateColumns: "minmax(7.5rem, auto) repeat(12, minmax(2.75rem, 1fr))" }}
-          role="table"
+          role="grid"
+          aria-label={t("title")}
+          data-rows={rows.length}
         >
           <div role="row" className="contents">
             <span role="columnheader" />
@@ -53,7 +59,7 @@ export async function HeatMap({ rows, selectedMonth }: { rows: HeatRow[]; select
               </span>
             ))}
           </div>
-          {rows.map((row) => {
+          {rows.map((row, ri) => {
             const name = row.label;
             return (
               <div role="row" key={row.id} className="contents">
@@ -61,15 +67,18 @@ export async function HeatMap({ rows, selectedMonth }: { rows: HeatRow[]; select
                 {row.months.map((m) => {
                   const c = heatCell(m.plan, m.booked, m.month, CURRENT_MONTH);
                   const text = c.kind === "future" ? "—" : (c.kind === "unplanned" || (c.kind === "pct" && c.over) ? "▲ " : "") + label(c);
-                  const aria = t("cell", { team: name, month: monthLong(m.month), value: label(c) });
+                  const aria = t("cell", { team: name, month: monthLong(m.month), value: c.kind === "pct" && c.over ? `${label(c)}, ${t("over")}` : label(c) });
                   const cls = "flex h-9 items-center justify-center rounded-md tabular-nums";
                   return c.kind === "future" ? (
-                    <span key={m.month} role="cell" aria-label={aria} title={aria} className={cls} style={cellStyle(c)}>{text}</span>
+                    <span key={m.month} role="gridcell" aria-label={aria} title={aria} className={cls} style={cellStyle(c)}>{text}</span>
                   ) : (
-                    // The cell wraps the link: links can't carry role="cell" themselves.
-                    <span key={m.month} role="cell" className="flex">
+                    // The cell wraps the link: links can't carry role="gridcell" themselves.
+                    <span key={m.month} role="gridcell" className="flex">
                     <Link
                       href={row.href(m.month)}
+                      data-r={ri}
+                      data-c={m.month}
+                      tabIndex={ri === 0 && m.month === startCol ? 0 : -1}
                       aria-label={aria}
                       title={aria}
                       className={`${cls} w-full outline-offset-2 hover:ring-2 hover:ring-foreground/40 focus-visible:outline-2 focus-visible:outline-ring ${m.month === selectedMonth ? "ring-2 ring-foreground" : ""}`}
@@ -83,7 +92,7 @@ export async function HeatMap({ rows, selectedMonth }: { rows: HeatRow[]; select
               </div>
             );
           })}
-        </div>
+        </HeatGrid>
       </div>
 
       <ul className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">

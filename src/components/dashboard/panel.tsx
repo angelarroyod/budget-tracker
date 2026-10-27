@@ -18,7 +18,9 @@ export function Panel({
   return (
     <Card className={className} id={id}>
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle>
+          <h2>{title}</h2>
+        </CardTitle>
         {description && <CardDescription>{description}</CardDescription>}
         {action && <CardAction>{action}</CardAction>}
       </CardHeader>

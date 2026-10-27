@@ -314,7 +314,8 @@
         "explain": "Pending requests aren’t in the forecast yet. Approving this one moves the team’s projection:",
         "projected": "Projected year-end",
         "now": "Now",
-        "after": "If approved"
+        "after": "If approved",
+        "budget": "Team budget: {amount}"
       },
       "submitted": "Submitted by {name}",
       "step": {

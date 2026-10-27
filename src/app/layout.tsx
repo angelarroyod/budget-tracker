@@ -29,7 +29,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <NextIntlClientProvider>
-            <p className="bg-muted px-4 py-1.5 text-center text-xs text-muted-foreground">{t("demoBanner")}</p>
+            <p className="bg-muted px-4 py-1.5 text-center text-xs text-foreground">{t("demoBanner")}</p>
             {children}
             <Toaster />
           </NextIntlClientProvider>

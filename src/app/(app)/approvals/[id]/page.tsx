@@ -146,6 +146,7 @@ export default async function ApprovalDetailPage({ params }: PageProps<"/approva
                   <StatusBadge status={ifApproved.status} />
                 </div>
               </div>
+              <p className="mt-3 text-sm text-muted-foreground tabular-nums">{t("detail.impact.budget", { amount: money(format, now.budget) })}</p>
             </Panel>
           )}
         </div>

@@ -314,7 +314,8 @@
         "explain": "Las solicitudes pendientes aún no están en la proyección. Aprobar esta mueve la proyección del equipo:",
         "projected": "Proyección de cierre",
         "now": "Hoy",
-        "after": "Si se aprueba"
+        "after": "Si se aprueba",
+        "budget": "Presupuesto del equipo: {amount}"
       },
       "submitted": "Enviada por {name}",
       "step": {
