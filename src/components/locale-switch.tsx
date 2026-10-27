@@ -21,7 +21,7 @@ export async function LocaleSwitch() {
           value={o.locale}
           size="xs"
           variant="ghost"
-          className={o.locale === locale ? "bg-card font-semibold shadow-xs hover:bg-card" : "text-muted-foreground"}
+          className={o.locale === locale ? "bg-card font-semibold shadow-xs hover:bg-card" : "text-foreground/70"}
           aria-pressed={o.locale === locale}
           lang={o.locale}
         >

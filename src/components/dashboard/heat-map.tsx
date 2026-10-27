@@ -83,7 +83,6 @@ export async function HeatMap({ rows, selectedMonth }: { rows: HeatRow[]; select
                   className={`flex h-5 items-center rounded-full px-[7px] tabular-nums ${
                     m === CURRENT_MONTH ? "bg-foreground font-semibold text-background"
                     : m === selectedMonth ? "font-semibold text-foreground underline underline-offset-4"
-                    : m > CURRENT_MONTH ? "text-muted-foreground/60"
                     : "text-muted-foreground"
                   }`}
                 >

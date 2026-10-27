@@ -135,7 +135,7 @@ export function ForecastChart({
               type="button"
               aria-pressed={view === v}
               onClick={() => setView(v)}
-              className="h-[26px] rounded-md px-2.5 text-xs font-medium text-muted-foreground aria-pressed:bg-card aria-pressed:font-semibold aria-pressed:text-foreground aria-pressed:shadow-xs"
+              className="h-[26px] rounded-md px-2.5 text-xs font-medium text-foreground/70 aria-pressed:bg-card aria-pressed:font-semibold aria-pressed:text-foreground aria-pressed:shadow-xs"
             >
               {t(v)}
             </button>
