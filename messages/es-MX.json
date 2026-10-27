@@ -42,28 +42,7 @@
   },
   "dashboard": {
     "title": "Resumen de la planta",
-    "headline": "Proyección de cierre: {amount} {direction, select, over {por encima} other {por debajo}} del presupuesto ({pct}).",
-    "asOf": "Año fiscal 2026 · al cierre de {month}",
     "noDriver": "Todos los equipos están dentro del plan.",
-    "kpi": {
-      "budget": "Presupuesto anual",
-      "actual": "Gasto real",
-      "actualHint": "{pct} del presupuesto · incl. devengado",
-      "committed": "Comprometido",
-      "committedHint": "Ordenado, aún sin factura",
-      "projected": "Proyección de cierre",
-      "variance": "Variación",
-      "varianceOver": "Proyección por encima del presupuesto",
-      "varianceUnder": "Proyección por debajo del presupuesto",
-      "nextFy": "Compromisos del próximo año",
-      "nextFyHint": "Excluidos del AF2026"
-    },
-    "byTeam": {
-      "title": "Proyección de cierre vs presupuesto",
-      "subtitle": "Por equipo, {currency}",
-      "budget": "Presupuesto",
-      "projected": "Proyección"
-    },
     "heat": {
       "title": "Gasto mensual vs plan",
       "subtitle": "Porcentaje del plan de cada mes ya registrado. Selecciona una celda para abrir ese mes del equipo.",
@@ -79,7 +58,7 @@
     },
     "monthly": {
       "title": "Planeado vs comprometido vs real",
-      "subtitle": "Total de la planta por mes, {currency}",
+      "subtitle": "{scope, select, team {Total del equipo} other {Total de la planta}} por mes, {currency}",
       "plan": "Planeado",
       "actual": "Real",
       "committed": "Comprometido",
@@ -133,7 +112,7 @@
     },
     "forecast": {
       "title": "Dónde cierra el año",
-      "subtitle": "Gasto acumulado, total de la planta, {currency}",
+      "subtitle": "Gasto acumulado, {scope, select, team {total del equipo} other {total de la planta}}, {currency}",
       "view": "Vista de la gráfica",
       "cumulative": "Acumulado",
       "monthly": "Mensual",
@@ -168,12 +147,8 @@
   "team": {
     "title": "Presupuesto del equipo",
     "back": "Resumen de la planta",
-    "driver": "Mayor sobregiro: {item}, {amount} por encima del plan.",
+    "driver": "El mayor sobregiro es <b>{item}, {amount} por encima del plan</b>.",
     "noDriver": "Todas las partidas están dentro del plan.",
-    "byItem": {
-      "title": "Proyección de cierre vs plan",
-      "subtitle": "Por partida, {currency}"
-    },
     "unbudgeted": "No presupuestado (aprobado)",
     "items": {
       "title": "Partidas",
@@ -194,7 +169,6 @@
     "month": {
       "title": "Gastos de {month}",
       "clear": "Quitar mes",
-      "hint": "Selecciona un mes en el mapa de calor para ver sus gastos.",
       "empty": "No hay gastos registrados este mes.",
       "description": "Descripción",
       "lineItem": "Partida",
@@ -210,7 +184,11 @@
         "rejected": "Rechazado"
       }
     },
-    "monthlySubtitle": "Total del equipo por mes, {currency}"
+    "lands": {
+      "title": "Dónde cierra cada partida",
+      "subtitle": "Proyección de cierre como % del plan de cada partida. Mayor sobregiro primero."
+    },
+    "heatSubtitle": "Porcentaje del plan de cada mes ya registrado, por partida. Selecciona una celda para ver los gastos de ese mes."
   },
   "comingSoon": "Esta pantalla llega en la fase {phase}.",
   "teams": {

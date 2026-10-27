@@ -109,11 +109,14 @@ export function ForecastChart({
   budget,
   currentMonth,
   monthly,
+  scope,
 }: {
   months: MonthForecast[];
   budget: number;
   currentMonth: number;
   monthly: MonthPoint[];
+  /** Whose total the chart shows; picks the subtitle. */
+  scope: "site" | "team";
 }) {
   const t = useTranslations("dashboard.forecast");
   const tMonthly = useTranslations("dashboard.monthly");
@@ -127,7 +130,7 @@ export function ForecastChart({
   return (
     <div className="flex min-w-0 flex-[999_1_520px] flex-col gap-3.5 px-6 pt-[22px] pb-[18px]">
       <div className="flex flex-wrap items-start justify-between gap-x-5 gap-y-2.5">
-        <SectionHeading title={t("title")} description={view === "monthly" ? tMonthly("subtitle", { currency: "USD" }) : t("subtitle", { currency: "USD" })} />
+        <SectionHeading title={t("title")} description={view === "monthly" ? tMonthly("subtitle", { scope, currency: "USD" }) : t("subtitle", { scope, currency: "USD" })} />
         <div role="group" aria-label={t("view")} className="flex rounded-lg bg-muted p-0.5">
           {(["cumulative", "monthly"] as const).map((v) => (
             <button
