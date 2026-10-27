@@ -66,6 +66,26 @@ is in the approval flow only its status can change, so an approved amount can't 
 The request page shows what approving does to the team's projection, because pending money
 isn't in the forecast yet.
 
+```mermaid
+flowchart TD
+  save([Champion or delegate saves an expense]) --> need{"No line item, or pushes its<br/>line item over the annual plan?"}
+  need -- No --> counts["Counts in the forecast"]
+  need -- Yes --> req["Approval request opens<br/>(pending: not in the forecast yet)"]
+  req --> self{"Requester is<br/>the team's champion?"}
+  self -- "No" --> champ["1 · Champion"]
+  self -- "Yes: step skipped" --> exec["2 · Executive"]
+  champ -- Approve --> exec
+  exec -- Approve --> amt{"Amount ≥ USD 25,000?<br/>(finance threshold)"}
+  amt -- Yes --> fin["3 · Finance"]
+  amt -- No --> ok["Approved: counts in the forecast"]
+  fin -- Approve --> ok
+  champ -- Reject --> no["Rejected: excluded from the forecast"]
+  exec -- Reject --> no
+  fin -- Reject --> no
+```
+
+Next-year commitments on a budgeted line item skip the plan check, since they don't touch this year's plan.
+
 **The server is the security boundary.** The demo login sets an HMAC-signed session cookie. Next.js
 `proxy.ts` only does a fast cookie check; every page and action authorizes again next to the data
 (champions get a 404, not a 403, for other teams' pages). Decisions run in a transaction with a row
