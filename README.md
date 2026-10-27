@@ -31,7 +31,7 @@ Pick a role on the login screen. Data resets every night (scheduled for 03:00 UT
 
 ## What it does
 
-- **Executive dashboard**: plain-language headline, KPI cards, projected vs budget by team, a team × month heat map, monthly planned / committed / actual, team table, and approvals with one-click decisions.
+- **Executive dashboard**: plain-language headline, KPI cards, projected vs budget by team, a team × month heat map, monthly planned / committed / actual, team table, and approvals you decide in two steps (the confirm names the amount).
 - **Team dashboard**: the same view for one team, plus line items, a savings callout, and a month drill-down from the heat map.
 - **Expenses**: filterable list (filters live in the URL) and an add/edit form with live currency conversion. Unbudgeted or over-plan spend automatically opens an approval request.
 - **Approvals**: *waiting on me / all pending / decided* queue and a request page with a step-by-step timeline, comments, and the forecast impact of approving.
@@ -46,7 +46,8 @@ unit tests for each edge case, and was cross-checked to the cent against an inde
 
 **Red means one thing.** Red is reserved for "already over budget", amber for "projected over",
 green for "on track", and every status also carries an icon and a label. A rejected approval is
-shown with a neutral ✕ badge, never red, so red never cries wolf.
+shown with a neutral ✕ badge, never red, and a heat-map month above its plan is amber with a ▲ (one hot month
+doesn't mean the team is over budget), so red never cries wolf.
 
 **Money is integer cents; floats never touch it.** Amounts are parsed as strings
 (`parseFloat("0.29") * 100` is `28.999…`). Each expense keeps its original currency, the exchange
@@ -78,14 +79,17 @@ serverless instance resets to byte-identical data (verified by fingerprinting th
 **Accessibility is checked, not assumed.** Lighthouse scores 100 on all seven main screens in
 English and Spanish, light and dark. Getting there meant fixing real issues: a switch that lost
 its label, link buttons announced as buttons, visible text missing from accessible names, and a
-link distinguished by color alone. Data charts have table views; there's a skip link.
+link distinguished by color alone. A score isn't the whole story, though: a later design review found two
+contrast failures Lighthouse missed (text inheriting a muted color inside a badge and on a tinted banner)
+and a heat map that cost ~80 tab stops; it's now an ARIA grid with one tab stop and arrow keys. Data charts
+have table views; there's a skip link.
 
 ## Screenshots
 
 | | |
 |---|---|
 | ![Heat map](docs/screenshots/heat-map.png) | ![Team dashboard in Spanish, dark mode](docs/screenshots/team-es-dark.png) |
-| Heat map: % of each month's plan booked; red only above 100% | Team dashboard, Spanish, dark mode |
+| Heat map: % of each month's plan booked | Team dashboard, Spanish, dark mode |
 | ![Expense form](docs/screenshots/expense-form.png) | ![Approval request](docs/screenshots/approval-detail.png) |
 | Unbudgeted MXN expense: live conversion and approval hint | Approval request: timeline and forecast impact |
 
