@@ -4,7 +4,7 @@ import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BudgetBarChart } from "@/components/dashboard/budget-bar-chart";
-import { HeatMap, type HeatRow } from "@/components/dashboard/heat-map";
+import { HeatLegend, HeatMap, type HeatRow } from "@/components/dashboard/heat-map";
 import { KpiCards } from "@/components/dashboard/kpi-cards";
 import { lineItemName, LineItemsTable } from "@/components/dashboard/line-items-table";
 import { MonthExpenses } from "@/components/dashboard/month-expenses";
@@ -94,12 +94,10 @@ export default async function TeamPage({ params, searchParams }: PageProps<"/tea
             data={rows.map((r) => ({ name: r.label, budget: r.forecast.budget, projected: r.forecast.projected, status: r.forecast.status }))}
           />
         </Panel>
-        <Panel title={tDash("approvals.title")}>
-          <PendingApprovals requests={snap.pending} exposure={f.pendingExposure} user={user} />
-        </Panel>
+        <PendingApprovals requests={snap.pending} forecast={f} user={user} />
       </div>
 
-      <Panel title={tDash("heat.title")} description={t("month.hint")}>
+      <Panel title={tDash("heat.title")} description={t("month.hint")} action={<HeatLegend />}>
         <HeatMap rows={heatRows} selectedMonth={month} />
       </Panel>
 

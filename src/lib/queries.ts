@@ -1,5 +1,6 @@
 import "server-only";
 import { and, asc, count, desc, eq, ilike, inArray, ne, or, sql } from "drizzle-orm";
+import { cache } from "react";
 import { db } from "@/db";
 import * as s from "@/db/schema";
 import { currentStep, type Step } from "./approvals";
@@ -77,8 +78,8 @@ function pendingRequests(d: Data, teamId?: number): PendingRequest[] {
     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 }
 
-/** Everything the executive dashboard needs. */
-export async function getSiteSnapshot() {
+/** Everything the executive dashboard needs. Cached per request: the sidebar's team list reads it too. */
+export const getSiteSnapshot = cache(async () => {
   const d = await loadAll();
   const teamOfItem = new Map(d.lineItems.map((i) => [i.id, i.teamId]));
   const teams: TeamSnapshot[] = d.teams.map((t) => ({
@@ -90,8 +91,20 @@ export async function getSiteSnapshot() {
       CURRENT_MONTH,
     ),
   }));
-  return { site: forecast(d.plans, d.expenses, CURRENT_MONTH), teams, pending: pendingRequests(d) };
-}
+
+  // The hottest over-plan team-month and the biggest counted expense in it: the heat map's one-line "why".
+  const hot = teams
+    .flatMap((t) => t.forecast.months.filter((m) => m.month <= CURRENT_MONTH && m.plan > 0 && m.booked > m.plan).map((m) => ({ team: t, month: m.month, pct: m.booked / m.plan })))
+    .sort((a, b) => b.pct - a.pct)[0];
+  const top = hot && d.expenses
+    .filter((e) => e.teamId === hot.team.id && e.fiscalMonth === hot.month && !e.nextFy && (e.approval === "none" || e.approval === "approved"))
+    .sort((a, b) => b.amountUsdCents - a.amountUsdCents)[0];
+  const hotspot = hot && top
+    ? { teamKey: hot.team.key, month: hot.month, pct: hot.pct, status: hot.team.forecast.status, description: top.description, amountUsdCents: top.amountUsdCents }
+    : null;
+
+  return { site: forecast(d.plans, d.expenses, CURRENT_MONTH), teams, pending: pendingRequests(d), hotspot };
+});
 
 /**
  * One team's dashboard. Returns only that team's rows; callers must already have checked

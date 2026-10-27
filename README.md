@@ -25,13 +25,13 @@ Pick a role on the login screen. Data resets every night (scheduled for 03:00 UT
 
 | Role | Try this |
 |---|---|
-| **Executive** | Read the headline, then follow *Largest overrun* → Maintenance. Click any heat-map cell to see that team's month. Approve or reject from *Pending approvals* and watch the KPIs move. |
+| **Executive** | Read the status line, then follow *Largest overrun* → Maintenance. Click any heat-map cell to see that team's month. Approve or reject from *Needs your decision*, which says up front what approving does to the forecast, and watch the projection move. |
 | **Champion · Facilities** | *Expenses → New expense*: choose **Unbudgeted**, **MXN**, type `94,500`. The form converts live and explains why it will need approval. Then approve your delegate's roof-repair request in *Approvals*. |
 | **Finance** | *Approvals → Waiting on me* only ever holds requests above the $25,000 threshold. Open one to see the timeline and what approving it does to the forecast. |
 
 ## What it does
 
-- **Executive dashboard**: plain-language headline, KPI cards, projected vs budget by team, a team × month heat map, monthly planned / committed / actual, team table, and approvals you decide in two steps (the confirm names the amount).
+- **Executive dashboard**: a status line in plain language; projected year-end beside a cumulative burn-up chart (booked, forecast to December, plan, budget, with the overrun shaded; a toggle switches to monthly planned / committed / actual); *where each team lands* as % of budget, booked solid and forecast hatched; approvals you decide in two steps (the confirm names the amount); and a team × month heat map with a year-to-date column and a one-line explanation of the hottest month. The sidebar lists every team's projected landing, worst first.
 - **Team dashboard**: the same view for one team, plus line items, a savings callout, and a month drill-down from the heat map.
 - **Expenses**: filterable list (filters live in the URL) and an add/edit form with live currency conversion. Unbudgeted or over-plan spend automatically opens an approval request.
 - **Approvals**: *waiting on me / all pending / decided* queue and a request page with a step-by-step timeline, comments, and the forecast impact of approving.
@@ -47,7 +47,13 @@ unit tests for each edge case, and was cross-checked to the cent against an inde
 **Red means one thing.** Red is reserved for "already over budget", amber for "projected over",
 green for "on track", and every status also carries an icon and a label. A rejected approval is
 shown with a neutral ✕ badge, never red, and a heat-map month above its plan is amber with a ▲ (one hot month
-doesn't mean the team is over budget), so red never cries wolf.
+doesn't mean the team is over budget), so red never cries wolf. Money that is forecast but not yet
+spent is hatched, never solid, so a bar never shows spend that hasn't happened.
+
+**The dashboard leads with the answer.** The first thing on the page is where the year lands and by
+how much; the chart beside it shows how it gets there. Every figure, including the heat map's
+"why" line (the hottest over-plan month and the biggest expense in it), is computed from the data,
+so the story stays true after each nightly reset.
 
 **Money is integer cents; floats never touch it.** Amounts are parsed as strings
 (`parseFloat("0.29") * 100` is `28.999…`). Each expense keeps its original currency, the exchange
@@ -82,7 +88,7 @@ its label, link buttons announced as buttons, visible text missing from accessib
 link distinguished by color alone. A score isn't the whole story, though: a later design review found two
 contrast failures Lighthouse missed (text inheriting a muted color inside a badge and on a tinted banner)
 and a heat map that cost ~80 tab stops; it's now an ARIA grid with one tab stop and arrow keys. Data charts
-have table views; there's a skip link.
+have table views; the burn-up chart also has a text summary; there's a skip link.
 
 ## Screenshots
 

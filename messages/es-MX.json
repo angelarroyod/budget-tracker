@@ -1,8 +1,9 @@
 {
   "app": {
     "name": "Control de Presupuesto",
-    "site": "Cobalt Industrial – Planta Monterrey",
-    "demoBanner": "Demo pública · datos ficticios · se reinicia cada noche"
+    "site": "Cobalt Industrial · Monterrey",
+    "demoBanner": "Demo pública · datos ficticios · se reinicia cada noche",
+    "plant": "Planta Monterrey"
   },
   "roles": {
     "executive": "Ejecutivo",
@@ -27,7 +28,8 @@
     "expenses": "Gastos",
     "approvals": "Aprobaciones",
     "openMenu": "Abrir menú",
-    "skip": "Saltar al contenido"
+    "skip": "Saltar al contenido",
+    "teamsProjected": "Equipos · proyección"
   },
   "topbar": {
     "fiscalYear": "Año fiscal",
@@ -42,7 +44,6 @@
     "title": "Resumen de la planta",
     "headline": "Proyección de cierre: {amount} {direction, select, over {por encima} other {por debajo}} del presupuesto ({pct}).",
     "asOf": "Año fiscal 2026 · al cierre de {month}",
-    "driver": "Mayor sobregiro: {team}, {amount} por encima del plan.",
     "noDriver": "Todos los equipos están dentro del plan.",
     "kpi": {
       "budget": "Presupuesto anual",
@@ -71,7 +72,10 @@
       "empty": "Sin plan ni gasto",
       "over": "Sobre el plan del mes",
       "cell": "{team}, {month}: {value}",
-      "legendScale": "≤50% · ≤80% · ≤95% · ≤100% del plan"
+      "legendScale": "≤50 · ≤80 · ≤95 · ≤100%",
+      "ytd": "Acum.",
+      "ytdCell": "{team}, acumulado del año: {value}",
+      "callout": "<b>{team}, {month}:</b> {description}, {amount}.{status, select, over { Por eso el equipo ya rebasó su presupuesto.} other {}}"
     },
     "monthly": {
       "title": "Planeado vs comprometido vs real",
@@ -82,33 +86,83 @@
       "showTable": "Ver tabla de datos",
       "month": "Mes"
     },
-    "table": {
-      "title": "Equipos",
-      "team": "Equipo",
-      "budget": "Presupuesto",
-      "actual": "Real",
-      "committed": "Comprometido",
-      "projected": "Proyección",
-      "variance": "Variación",
-      "status": "Estado"
-    },
     "approvals": {
-      "title": "Aprobaciones pendientes",
-      "count": "{count, plural, =0 {Nada en espera} one {# solicitud en espera} other {# solicitudes en espera}}",
-      "exposure": "{amount} aún fuera de la proyección",
-      "waitingOn": "Espera a {role}",
-      "yourTurn": "Tu decisión",
+      "title": "Requieren tu decisión",
+      "exposure": "{amount} pendiente · aún fuera de la proyección",
+      "waitingOn": "{team} · espera a {role}",
       "approve": "Aprobar",
       "reject": "Rechazar",
       "approved": "Aprobada",
       "rejected": "Rechazada",
       "failed": "No se pudo registrar la decisión. Actualiza e intenta de nuevo.",
-      "empty": "No hay solicitudes en espera.",
-      "by": "{name} · {team}",
+      "empty": "Nada espera tu decisión.",
       "confirmApprove": "¿Aprobar {amount}?",
       "confirmReject": "¿Rechazar {amount}?",
       "confirm": "Confirmar",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "impact": "Aprobar {count, plural, one {esta} other {las #}} suma <b>{amount}</b> a la proyección: <b>{total}</b> {direction, select, over {por encima} other {por debajo}}.",
+      "others": "En espera de otros · {count}",
+      "meta": "{team} · {name} · {date}",
+      "queue": "Abrir cola",
+      "you": "Tú",
+      "skipped": "{role} · omitido",
+      "approvedStep": "{role} · aprobó",
+      "steps": {
+        "champion": "Responsable",
+        "executive": "Ejecutivo",
+        "finance": "Finanzas"
+      }
+    },
+    "context": "{plant} · Año fiscal 2026 · datos al cierre de {month}",
+    "summary": "Proyección de cierre: <b>{amount} {direction, select, over {por encima} other {por debajo}} del presupuesto</b> ({pct}).",
+    "driverLink": "El mayor sobregiro es <link>{team}, {amount} por encima del plan</link>.",
+    "review": "Revisar {count, plural, one {# solicitud} other {# solicitudes}}",
+    "projection": {
+      "projected": "Proyección de cierre",
+      "budget": "Presupuesto anual",
+      "variance": "Variación",
+      "varianceValue": "{amount} {direction, select, over {por encima} other {por debajo}}",
+      "booked": "Registrado a la fecha",
+      "bookedPct": "{pct} del presupuesto",
+      "actual": "Real",
+      "actualHint": "incl. devengado",
+      "committed": "Comprometido",
+      "committedHint": "sin factura",
+      "nextFy": "Próximo año",
+      "nextFyHint": "excluido"
+    },
+    "forecast": {
+      "title": "Dónde cierra el año",
+      "subtitle": "Gasto acumulado, total de la planta, {currency}",
+      "view": "Vista de la gráfica",
+      "cumulative": "Acumulado",
+      "monthly": "Mensual",
+      "booked": "Registrado",
+      "forecast": "Proyección",
+      "plan": "Plan",
+      "budget": "Presupuesto",
+      "budgetLabel": "Presupuesto · {amount}",
+      "bookedLabel": "{amount} registrado",
+      "projectedLabel": "{amount} proyectado",
+      "endDelta": "{direction, select, over {▲ {amount} por encima} other {▼ {amount} por debajo}}",
+      "rule": "Los meses cerrados cuentan lo registrado; los abiertos suponen <code>max(plan, registrado)</code>, por partida.",
+      "summary": "{booked} registrado hasta {month}; proyección de cierre en {projected} contra un presupuesto de {budget}."
+    },
+    "lands": {
+      "title": "Dónde cierra cada equipo",
+      "subtitle": "Proyección de cierre como % del presupuesto de cada equipo. Mayor sobregiro primero.",
+      "team": "Equipo",
+      "bar": "Proyección vs presupuesto",
+      "pct": "% Presup.",
+      "variance": "Variación",
+      "status": "Estado",
+      "booked": "Registrado",
+      "forecast": "Proyección",
+      "budget": "Presupuesto",
+      "budgetShort": "Presupuesto {amount}",
+      "over": "por encima",
+      "under": "por debajo",
+      "total": "Total de la planta"
     }
   },
   "team": {

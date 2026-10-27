@@ -53,7 +53,7 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
+  --background: oklch(0.985 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -64,7 +64,8 @@
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  /* 0.52, not shadcn's 0.556: muted text must clear 4.5:1 on the #fafafa page and #f5f5f5 muted fills too. */
+  --muted-foreground: oklch(0.52 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
@@ -164,15 +165,19 @@
   --series-actual: #2a78d6;
   --series-committed: #eb6834;
   --series-budget: #c3c2b7;
-  --heat-1: #cde2fb;
-  --heat-2: #9ec5f4;
-  --heat-3: #5598e7;
-  --heat-4: #256abf;
+  --heat-1: #eaf3fd;
+  --heat-2: #cde2fb;
+  --heat-3: #9ec5f4;
+  --heat-4: #5598e7;
   --heat-empty: #f0efec;
   --heat-ink-1: #0b0b0b;
   --heat-ink-2: #0b0b0b;
   --heat-ink-3: #0b0b0b;
-  --heat-ink-4: #ffffff;
+  --heat-ink-4: #0b0b0b;
+  /* Forecast (not yet booked) segments: hatched, so "money not spent yet" never reads as solid spend. */
+  --hatch-forecast: repeating-linear-gradient(135deg, #9ec5f4 0 3px, #cde2fb 3px 6px);
+  --hatch-warning: repeating-linear-gradient(135deg, #f6b52a 0 3px, #fcdc93 3px 6px);
+  --hatch-critical: repeating-linear-gradient(135deg, #d03b3b 0 3px, #f2b8b8 3px 6px);
 }
 .dark {
   --series-actual: #3987e5;
@@ -187,4 +192,7 @@
   --heat-ink-2: #ffffff;
   --heat-ink-3: #0b0b0b;
   --heat-ink-4: #0b0b0b;
+  --hatch-forecast: repeating-linear-gradient(135deg, #256abf 0 3px, #184f95 3px 6px);
+  --hatch-warning: repeating-linear-gradient(135deg, #fab219 0 3px, #8a6210 3px 6px);
+  --hatch-critical: repeating-linear-gradient(135deg, #d03b3b 0 3px, #7a2424 3px 6px);
 }

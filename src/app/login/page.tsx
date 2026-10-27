@@ -16,7 +16,8 @@ export default async function LoginPage() {
   return (
     <main className="flex flex-1 items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="mb-3 flex justify-end gap-2">
+        <div className="mb-3 flex items-center justify-end gap-2">
+          <p className="mr-auto text-xs text-muted-foreground">{tApp("demoBanner")}</p>
           <LocaleSwitch />
           <ThemeToggle />
         </div>

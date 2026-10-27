@@ -1,8 +1,9 @@
 {
   "app": {
     "name": "Budget Tracker",
-    "site": "Cobalt Industrial – Monterrey Plant",
-    "demoBanner": "Public demo · fictional data · resets nightly"
+    "site": "Cobalt Industrial · Monterrey",
+    "demoBanner": "Public demo · fictional data · resets nightly",
+    "plant": "Monterrey Plant"
   },
   "roles": {
     "executive": "Executive",
@@ -27,7 +28,8 @@
     "expenses": "Expenses",
     "approvals": "Approvals",
     "openMenu": "Open menu",
-    "skip": "Skip to content"
+    "skip": "Skip to content",
+    "teamsProjected": "Teams · projected"
   },
   "topbar": {
     "fiscalYear": "Fiscal year",
@@ -42,7 +44,6 @@
     "title": "Site overview",
     "headline": "Projected to finish {amount} {direction, select, over {over} other {under}} budget ({pct}).",
     "asOf": "Fiscal year 2026 · as of {month}",
-    "driver": "Largest overrun: {team}, {amount} over plan.",
     "noDriver": "Every team is within plan.",
     "kpi": {
       "budget": "Annual budget",
@@ -71,7 +72,10 @@
       "empty": "No plan",
       "over": "Over the month’s plan",
       "cell": "{team}, {month}: {value}",
-      "legendScale": "≤50% · ≤80% · ≤95% · ≤100% of plan"
+      "legendScale": "≤50 · ≤80 · ≤95 · ≤100%",
+      "ytd": "YTD",
+      "ytdCell": "{team}, year to date: {value}",
+      "callout": "<b>{team}, {month}:</b> {description}, {amount}.{status, select, over { It’s why the team is already over budget.} other {}}"
     },
     "monthly": {
       "title": "Planned vs committed vs actual",
@@ -82,33 +86,83 @@
       "showTable": "Show data table",
       "month": "Month"
     },
-    "table": {
-      "title": "Teams",
-      "team": "Team",
-      "budget": "Budget",
-      "actual": "Actual",
-      "committed": "Committed",
-      "projected": "Projected",
-      "variance": "Variance",
-      "status": "Status"
-    },
     "approvals": {
-      "title": "Pending approvals",
-      "count": "{count, plural, =0 {Nothing waiting} one {# request waiting} other {# requests waiting}}",
-      "exposure": "{amount} not yet in the forecast",
-      "waitingOn": "Waiting on {role}",
-      "yourTurn": "Your decision",
+      "title": "Needs your decision",
+      "exposure": "{amount} pending · not yet in the forecast",
+      "waitingOn": "{team} · waiting on {role}",
       "approve": "Approve",
       "reject": "Reject",
       "approved": "Approved",
       "rejected": "Rejected",
       "failed": "Couldn’t record the decision. Refresh and try again.",
-      "empty": "No requests are waiting.",
-      "by": "{name} · {team}",
+      "empty": "Nothing is waiting on you.",
       "confirmApprove": "Approve {amount}?",
       "confirmReject": "Reject {amount}?",
       "confirm": "Confirm",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "impact": "Approving {count, plural, one {it} other {all #}} adds <b>{amount}</b> to the forecast: <b>{total}</b> {direction, select, over {over} other {under}}.",
+      "others": "Waiting on others · {count}",
+      "meta": "{team} · {name} · {date}",
+      "queue": "Open queue",
+      "you": "You",
+      "skipped": "{role} · skipped",
+      "approvedStep": "{role} · approved",
+      "steps": {
+        "champion": "Champion",
+        "executive": "Executive",
+        "finance": "Finance"
+      }
+    },
+    "context": "{plant} · Fiscal year 2026 · data through {month}",
+    "summary": "Projected to finish <b>{amount} {direction, select, over {over} other {under}} budget</b> ({pct}).",
+    "driverLink": "Largest overrun is <link>{team}, {amount} over plan</link>.",
+    "review": "Review {count, plural, one {# request} other {# requests}}",
+    "projection": {
+      "projected": "Projected year-end",
+      "budget": "Annual budget",
+      "variance": "Variance",
+      "varianceValue": "{amount} {direction, select, over {over} other {under}}",
+      "booked": "Booked so far",
+      "bookedPct": "{pct} of budget",
+      "actual": "Actual",
+      "actualHint": "incl. accrued",
+      "committed": "Committed",
+      "committedHint": "not invoiced",
+      "nextFy": "Next-year",
+      "nextFyHint": "excluded"
+    },
+    "forecast": {
+      "title": "Where the year lands",
+      "subtitle": "Cumulative spend, site total, {currency}",
+      "view": "Chart view",
+      "cumulative": "Cumulative",
+      "monthly": "Monthly",
+      "booked": "Booked",
+      "forecast": "Forecast",
+      "plan": "Plan",
+      "budget": "Budget",
+      "budgetLabel": "Budget · {amount}",
+      "bookedLabel": "{amount} booked",
+      "projectedLabel": "{amount} projected",
+      "endDelta": "{direction, select, over {▲ {amount} over budget} other {▼ {amount} under budget}}",
+      "rule": "Closed months count what was booked; open months assume <code>max(plan, booked)</code>, per line item.",
+      "summary": "{booked} booked through {month}; projected to finish at {projected} against a {budget} budget."
+    },
+    "lands": {
+      "title": "Where each team lands",
+      "subtitle": "Projected year-end as % of each team’s budget. Biggest overrun first.",
+      "team": "Team",
+      "bar": "Projected vs budget",
+      "pct": "% Budget",
+      "variance": "Variance",
+      "status": "Status",
+      "booked": "Booked",
+      "forecast": "Forecast",
+      "budget": "Budget",
+      "budgetShort": "Budget {amount}",
+      "over": "over",
+      "under": "under",
+      "total": "Site total"
     }
   },
   "team": {
