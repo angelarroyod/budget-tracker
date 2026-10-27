@@ -87,7 +87,7 @@ export default async function ApprovalsPage({ searchParams }: PageProps<"/approv
                     <TableCell><ApprovalState row={r} /></TableCell>
                     {view === "mine" && (
                       <TableCell>
-                        <DecisionButtons requestId={r.id} label={r.expense.description} />
+                        <DecisionButtons requestId={r.id} label={r.expense.description} amountUsdCents={r.expense.amountUsdCents} />
                       </TableCell>
                     )}
                   </TableRow>

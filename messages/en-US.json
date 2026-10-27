@@ -104,7 +104,11 @@
       "rejected": "Rejected",
       "failed": "Couldn’t record the decision. Refresh and try again.",
       "empty": "No requests are waiting.",
-      "by": "{name} · {team}"
+      "by": "{name} · {team}",
+      "confirmApprove": "Approve {amount}?",
+      "confirmReject": "Reject {amount}?",
+      "confirm": "Confirm",
+      "cancel": "Cancel"
     }
   },
   "team": {

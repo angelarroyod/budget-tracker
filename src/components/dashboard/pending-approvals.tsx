@@ -49,7 +49,7 @@ export async function PendingApprovals({ requests, exposure, user }: { requests:
                   ) : (
                     <Badge variant="secondary">{t("waitingOn", { role: tRoles(r.current.role) })}</Badge>
                   )}
-                  {mine && <DecisionButtons requestId={r.id} label={r.description} />}
+                  {mine && <DecisionButtons requestId={r.id} label={r.description} amountUsdCents={r.amountUsdCents} />}
                 </div>
               </li>
             );

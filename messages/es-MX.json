@@ -104,7 +104,11 @@
       "rejected": "Rechazada",
       "failed": "No se pudo registrar la decisión. Actualiza e intenta de nuevo.",
       "empty": "No hay solicitudes en espera.",
-      "by": "{name} · {team}"
+      "by": "{name} · {team}",
+      "confirmApprove": "¿Aprobar {amount}?",
+      "confirmReject": "¿Rechazar {amount}?",
+      "confirm": "Confirmar",
+      "cancel": "Cancelar"
     }
   },
   "team": {

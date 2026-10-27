@@ -43,3 +43,6 @@ next-env.d.ts
 
 # local embedded postgres
 .pglite/
+
+# design critique snapshots
+.impeccable/

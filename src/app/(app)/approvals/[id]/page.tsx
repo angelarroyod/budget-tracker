@@ -123,7 +123,7 @@ export default async function ApprovalDetailPage({ params }: PageProps<"/approva
           {r.status === "pending" && (
             <Panel title={t("detail.yourDecision")}>
               {mine ? (
-                <DecisionPanel requestId={r.id} label={e.description} />
+                <DecisionPanel requestId={r.id} label={e.description} amountUsdCents={e.amountUsdCents} />
               ) : (
                 <p className="text-sm text-muted-foreground">{t("detail.notYours", { name: r.current?.approverName ?? "" })}</p>
               )}
