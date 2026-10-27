@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getLocale } from "next-intl/server";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
@@ -22,14 +22,13 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const [locale, t] = await Promise.all([getLocale(), getTranslations("app")]);
+  const locale = await getLocale();
   return (
     // suppressHydrationWarning: next-themes sets the theme class on <html> before React hydrates
     <html lang={locale} suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <NextIntlClientProvider>
-            <p className="bg-muted px-4 py-1.5 text-center text-xs text-foreground">{t("demoBanner")}</p>
             {children}
             <Toaster />
           </NextIntlClientProvider>

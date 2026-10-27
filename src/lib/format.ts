@@ -10,5 +10,16 @@ export const money = (f: Formatter, cents: number, currency: "USD" | "MXN" = "US
 export const compact = (f: Formatter, cents: number) =>
   f.number(cents / 100, { notation: "compact", maximumFractionDigits: 1 });
 
+/** Short money for labels: "USD 24.0M", or "USD 20.39M" with digits = 2. */
+export const moneyShort = (f: Formatter, cents: number, digits = 1) =>
+  f.number(cents / 100, {
+    style: "currency",
+    currency: "USD",
+    currencyDisplay: "code",
+    notation: "compact",
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  });
+
 export const percent = (f: Formatter, ratio: number, signed = false) =>
   f.number(ratio, { style: "percent", maximumFractionDigits: 1, signDisplay: signed ? "exceptZero" : "auto" });
