@@ -42,28 +42,7 @@
   },
   "dashboard": {
     "title": "Site overview",
-    "headline": "Projected to finish {amount} {direction, select, over {over} other {under}} budget ({pct}).",
-    "asOf": "Fiscal year 2026 · as of {month}",
     "noDriver": "Every team is within plan.",
-    "kpi": {
-      "budget": "Annual budget",
-      "actual": "Actual spent",
-      "actualHint": "{pct} of budget · incl. accrued",
-      "committed": "Committed",
-      "committedHint": "Ordered, not yet invoiced",
-      "projected": "Projected year-end",
-      "variance": "Variance",
-      "varianceOver": "Projected over budget",
-      "varianceUnder": "Projected under budget",
-      "nextFy": "Next-year commitments",
-      "nextFyHint": "Excluded from FY2026"
-    },
-    "byTeam": {
-      "title": "Projected year-end vs budget",
-      "subtitle": "By team, {currency}",
-      "budget": "Budget",
-      "projected": "Projected"
-    },
     "heat": {
       "title": "Monthly spend vs plan",
       "subtitle": "Percent of each month’s plan booked. Select a cell to open that team’s month.",
@@ -79,7 +58,7 @@
     },
     "monthly": {
       "title": "Planned vs committed vs actual",
-      "subtitle": "Site total by month, {currency}",
+      "subtitle": "{scope, select, team {Team total} other {Site total}} by month, {currency}",
       "plan": "Planned",
       "actual": "Actual",
       "committed": "Committed",
@@ -133,7 +112,7 @@
     },
     "forecast": {
       "title": "Where the year lands",
-      "subtitle": "Cumulative spend, site total, {currency}",
+      "subtitle": "Cumulative spend, {scope, select, team {team total} other {site total}}, {currency}",
       "view": "Chart view",
       "cumulative": "Cumulative",
       "monthly": "Monthly",
@@ -168,12 +147,8 @@
   "team": {
     "title": "Team budget",
     "back": "Site overview",
-    "driver": "Largest overrun: {item}, {amount} over plan.",
+    "driver": "Largest overrun is <b>{item}, {amount} over plan</b>.",
     "noDriver": "Every line item is within plan.",
-    "byItem": {
-      "title": "Projected year-end vs plan",
-      "subtitle": "By line item, {currency}"
-    },
     "unbudgeted": "Unbudgeted (approved)",
     "items": {
       "title": "Line items",
@@ -194,7 +169,6 @@
     "month": {
       "title": "Expenses in {month}",
       "clear": "Clear month",
-      "hint": "Select a month in the heat map to see its expenses.",
       "empty": "No expenses booked this month.",
       "description": "Description",
       "lineItem": "Line item",
@@ -210,7 +184,11 @@
         "rejected": "Rejected"
       }
     },
-    "monthlySubtitle": "Team total by month, {currency}"
+    "lands": {
+      "title": "Where each line item lands",
+      "subtitle": "Projected year-end as % of each line item’s plan. Biggest overrun first."
+    },
+    "heatSubtitle": "Percent of each month’s plan booked, by line item. Select a cell to see that month’s expenses."
   },
   "comingSoon": "This screen is coming in phase {phase}.",
   "teams": {

@@ -3,6 +3,7 @@ import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { money } from "@/lib/format";
 import type { LineItemSnapshot } from "@/lib/queries";
 import { lineItemName } from "./line-items-table";
+import { SURFACE } from "./panel";
 
 /** SPEC §2.6: net unspent plan in closed months, per line item. Renders nothing when there are no savings. */
 export async function SavingsCallout({ items }: { items: LineItemSnapshot[] }) {
@@ -13,7 +14,7 @@ export async function SavingsCallout({ items }: { items: LineItemSnapshot[] }) {
   const total = top.reduce((sum, i) => sum + i.savings, 0);
 
   return (
-    <aside className="flex gap-3 rounded-xl border bg-muted/40 p-4" aria-label={t("title")}>
+    <aside className={`flex gap-3 px-6 py-4 ${SURFACE}`} aria-label={t("title")}>
       <PiggyBankIcon className="mt-0.5 size-5 shrink-0 text-muted-foreground" aria-hidden />
       <div className="text-sm">
         <p className="font-medium">{t("headline", { amount: money(format, total) })}</p>

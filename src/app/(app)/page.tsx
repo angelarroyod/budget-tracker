@@ -75,7 +75,14 @@ export default async function DashboardPage() {
       <Projection f={site} />
 
       <div className="flex flex-wrap items-start gap-5">
-        <TeamLands teams={teams} site={site} />
+        <TeamLands
+          rows={teams.map((x) => ({ id: x.id, label: teamName(x.key), href: `/teams/${x.id}`, forecast: x.forecast }))}
+          total={site}
+          title={t("lands.title")}
+          subtitle={t("lands.subtitle")}
+          nameHeader={t("lands.team")}
+          totalLabel={t("lands.total")}
+        />
         <PendingApprovals requests={pending} forecast={site} user={user} />
       </div>
 
