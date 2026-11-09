@@ -67,23 +67,18 @@ The request page shows what approving does to the team's projection, because pen
 isn't in the forecast yet.
 
 ```mermaid
-flowchart TD
-  save([Champion or delegate saves an expense]) --> need{"No line item, or pushes its<br/>line item over the annual plan?"}
-  need -- No --> counts["Counts in the forecast"]
-  need -- Yes --> req["Approval request opens<br/>(pending: not in the forecast yet)"]
-  req --> self{"Requester is<br/>the team's champion?"}
-  self -- "No" --> champ["1 · Champion"]
-  self -- "Yes: step skipped" --> exec["2 · Executive"]
-  champ -- Approve --> exec
-  exec -- Approve --> amt{"Amount ≥ USD 25,000?<br/>(finance threshold)"}
-  amt -- Yes --> fin["3 · Finance"]
-  amt -- No --> ok["Approved: counts in the forecast"]
-  fin -- Approve --> ok
-  champ -- Reject --> no["Rejected: excluded from the forecast"]
-  exec -- Reject --> no
-  fin -- Reject --> no
+flowchart LR
+  e([Expense saved]) --> q{Unbudgeted<br/>or over plan?}
+  q -- no --> f[In forecast]
+  q -- yes --> c[Champion]
+  c -- approve --> x[Executive]
+  x -- "approve, ≥ $25k" --> fin[Finance]
+  x -- "approve, < $25k" --> ok[Approved:<br/>in forecast]
+  fin -- approve --> ok
+  c & x & fin -- reject --> no[Rejected:<br/>excluded]
 ```
 
+The champion step is skipped when the champion raised the request. A pending request isn't in the forecast yet.
 Next-year commitments on a budgeted line item skip the plan check, since they don't touch this year's plan.
 
 **The server is the security boundary.** The demo login sets an HMAC-signed session cookie. Next.js
