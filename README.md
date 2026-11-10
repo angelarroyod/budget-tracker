@@ -105,6 +105,13 @@ contrast failures Lighthouse missed (text inheriting a muted color inside a badg
 and a heat map that cost ~80 tab stops; it's now an ARIA grid with one tab stop and arrow keys. Data charts
 have table views; the burn-up chart also has a text summary; there's a skip link.
 
+**The claims above have end-to-end tests.** A [Playwright](e2e/) suite runs in CI against a production
+build and a real Postgres. It walks each role's *Try it* script (approving $12,500 must move the
+projection by exactly $12,500). It also races two decisions on the same approval step and expects
+exactly one to be recorded. It requests another team's pages as a champion and expects a 404, and it
+checks that a forged session cookie is rejected. Finally it runs axe on the seven main screens in both
+languages and both themes: 28 scans, and any violation fails the build.
+
 ## Screenshots
 
 | | |
@@ -146,6 +153,7 @@ pnpm dev
 | Script | What it does |
 |---|---|
 | `test` | Unit tests (forecast, FX, approvals, session, form parsing, translations) |
+| `test:e2e` | Playwright on a production build: role flows, security checks, axe scans (needs `db:local` running; reseeds the database) |
 | `typecheck` | Generate Next route types, then `tsc` |
 | `db:local` | Embedded Postgres, data in `.pglite/` |
 | `db:generate` | New SQL migration from `src/db/schema.ts` |
