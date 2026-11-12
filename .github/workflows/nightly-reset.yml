@@ -1,0 +1,34 @@
+name: Nightly demo reset
+
+# Replaces the Vercel Cron job: the reset is TypeScript (/api/reset) and the ledger pipeline is
+# Python, and the pipeline must run after the reset, not race it. One job runs both, in order.
+on:
+  schedule:
+    - cron: "0 3 * * *" # GitHub may start it late under load; the banner names no exact time
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nightly-reset
+  cancel-in-progress: false
+
+env:
+  APP_URL: https://budget-tracker-ruby-nine.vercel.app
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Reload the deterministic tracker seed
+        run: curl --fail-with-body --silent --show-error -H "Authorization: Bearer $CRON_SECRET" "$APP_URL/api/reset"
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+      - name: Load and reconcile the finance ledger
+        run: uv run python -m budget_pipelines ingest-ledger data/ledger_fy2026.csv
+        working-directory: pipelines
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}

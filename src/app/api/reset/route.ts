@@ -4,8 +4,9 @@ import { db } from "@/db";
 import { seed } from "@/db/seed";
 
 /**
- * Nightly demo reset (vercel.json cron, scheduled 03:00 UTC; Hobby runs it within that hour): wipes visitors' changes and reloads the
- * deterministic seed. Vercel Cron sends `Authorization: Bearer $CRON_SECRET`.
+ * Nightly demo reset: wipes visitors' changes and reloads the deterministic seed. Called by the
+ * GitHub Actions job in .github/workflows/nightly-reset.yml (which then runs the ledger pipeline)
+ * and by the e2e suite, both with `Authorization: Bearer $CRON_SECRET`.
  */
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
