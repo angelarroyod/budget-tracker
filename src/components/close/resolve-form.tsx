@@ -59,9 +59,9 @@ export function ResolveForm({ itemId, label, resolvedId }: { itemId: number; lab
         {invalid && <span className="font-medium">{t("errors.invalid")} </span>}
         {t("resolutionHint")}
       </p>
-      <Button type="submit" size="sm" disabled={pending} className="self-start">
+      {/* An explicit name, like the decision buttons: an sr-only span would come out as "Resolve : …" in Chrome. */}
+      <Button type="submit" size="sm" disabled={pending} className="self-start" aria-label={`${t("resolve")}: ${label}`}>
         {pending ? t("resolving") : t("resolve")}
-        <span className="sr-only">: {label}</span>
       </Button>
     </form>
   );

@@ -61,7 +61,7 @@ test("champion: month close is not theirs, and a closed month's expenses are loc
 
   // August is closed: an August expense opens read-only, without a Save button.
   await page.goto("/expenses?month=8");
-  await page.getByRole("link", { name: /^Edit: / }).first().click();
+  await page.getByLabel(/^Edit: /).first().click(); // a Link rendered through Button, so its role is "button"
   const sheet = page.getByRole("dialog", { name: "Edit expense" });
   await expect(sheet.getByText("This expense is in a closed month and can’t be edited.")).toBeVisible();
   await expect(sheet.getByRole("button", { name: "Save expense" })).toHaveCount(0);
