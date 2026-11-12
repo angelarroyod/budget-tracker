@@ -121,6 +121,7 @@ export default async function ExpensesPage({ searchParams }: PageProps<"/expense
             annualBookedCents: i.annualBookedCents,
           }))}
           fxRates={formData.fxRates}
+          closedMonths={formData.closedMonths}
           closeHref={closeHref}
         />
       )}

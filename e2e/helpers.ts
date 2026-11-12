@@ -1,9 +1,20 @@
+import { spawnSync } from "node:child_process";
 import { expect, type APIRequestContext, type Page } from "@playwright/test";
 
-/** Reloads the deterministic seed through the same endpoint the nightly cron calls. */
+/**
+ * What the nightly job does: reload the deterministic seed through /api/reset, then load and reconcile the
+ * finance ledger with the Python pipeline (needs uv on PATH and the same DATABASE_URL as the app).
+ */
 export async function resetData(request: APIRequestContext) {
   const res = await request.get("/api/reset", { headers: { authorization: `Bearer ${process.env.CRON_SECRET}` } });
   expect(res.status(), "reset needs CRON_SECRET to match the server's").toBe(200);
+  const pipeline = spawnSync(
+    "uv",
+    ["run", "--directory", "pipelines", "python", "-m", "budget_pipelines", "ingest-ledger", "data/ledger_fy2026.csv"],
+    { encoding: "utf-8" },
+  );
+  expect(pipeline.status, `ledger pipeline failed:
+${pipeline.stdout}${pipeline.stderr}`).toBe(0);
 }
 
 /** The three one-click demo roles on the login screen (button names start with the role label). */

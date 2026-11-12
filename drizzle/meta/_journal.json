@@ -15,6 +15,13 @@
       "when": 1794487885371,
       "tag": "0001_illegal_pride",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794490867853,
+      "tag": "0002_special_network",
+      "breakpoints": true
     }
   ]
 }

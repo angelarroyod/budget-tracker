@@ -285,11 +285,34 @@ export const reconItems = pgTable(
     trackerUsdCents: cents("tracker_usd_cents"),
     ledgerUsdCents: cents("ledger_usd_cents"),
     runId: integer("run_id").notNull().references(() => ingestRuns.id), // run that first produced it
+    // A person explains each exception; nothing is corrected automatically. Cleared by the pipeline if the facts change.
+    resolution: text(),
+    resolvedBy: integer("resolved_by").references(() => users.id),
+    resolvedAt: timestamp("resolved_at", { withTimezone: true }),
   },
   (t) => [
     index("recon_items_team_month_idx").on(t.teamId, t.fiscalMonth),
     index("recon_items_expense_idx").on(t.expenseId),
+    check(
+      "recon_items_resolution",
+      sql`(${t.resolution} is null) = (${t.resolvedBy} is null) and (${t.resolution} is null) = (${t.resolvedAt} is null)
+        and (${t.resolution} is null or ${t.kind} <> 'matched')`,
+    ),
   ],
+);
+
+/**
+ * A fiscal month finance has closed. Only "closed" is stored: "reconciled" is derived from recon_items
+ * (every exception resolved), so the two can't disagree. Closing locks the month's expenses.
+ */
+export const monthCloses = pgTable(
+  "month_closes",
+  {
+    fiscalMonth: smallint("fiscal_month").primaryKey(),
+    closedBy: integer("closed_by").notNull().references(() => users.id),
+    closedAt: timestamp("closed_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [check("month_closes_month", sql`${t.fiscalMonth} between 1 and 12`)],
 );
 
 export type ExpenseStatus = (typeof expenseStatusEnum.enumValues)[number];

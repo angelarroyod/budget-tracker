@@ -107,6 +107,17 @@ description, currency, amount_orig, fx_rate, amount_usd`). The pipeline (`pipeli
 
 Rejects are untrusted data; exceptions are trusted data that disagrees. Nothing is corrected automatically.
 
+### 2.9 Month close
+- Each month is **open** → **reconciled** → **closed**. Only *closed* is stored (`month_closes`); *reconciled* means the
+  ledger has postings for the month and every exception has a resolution.
+- **Finance** explains each exception with a comment (10–500 characters). The executive reads; champions and delegates
+  get a 404. Rejected ledger rows are listed but not resolved: they're fixed in the ledger and re-sent.
+- Finance closes a reconciled month, in order (the previous month must be closed), never the current one.
+- A closed month is **locked**: no new expenses in it, no edits to its expenses, no moving one out of it.
+- The pipeline keeps resolutions across re-runs, clears one when the amounts behind it change, and never deletes a
+  resolved exception. An exception arriving after a month closed is shown on that month.
+- Seed: January–August closed by finance; September is the month being closed.
+
 ---
 
 ## 3. Data model (Drizzle)
@@ -135,8 +146,9 @@ ledger_rejects   id, source_sha256, row_number, run_id, reason, detail, tracker_
 ledger_postings  id, journal_id, line_no, posting_date, fiscal_month, team_id, account_code, tracker_ref?,
                  description, currency, amount_orig_cents, fx_rate, amount_usd_cents, loaded_run_id, updated_run_id?
                                                                                   UNIQUE(journal_id, line_no)
+month_closes     fiscal_month (PK), closed_by, closed_at
 recon_items      id, item_key (unique), kind, fiscal_month, team_id, expense_id?, posting_id?, reject_id?,
-                 tracker_usd_cents?, ledger_usd_cents?, run_id
+                 tracker_usd_cents?, ledger_usd_cents?, run_id, resolution?, resolved_by?, resolved_at?
 ```
 
 Constraints worth putting in the DB, not app code: `CHECK (month BETWEEN 1 AND 12)`, `CHECK (amount_orig_cents > 0)`, FK indexes on `team_id`, `line_item_id`, `request_id`.
@@ -153,6 +165,7 @@ Constraints worth putting in the DB, not app code: `CHECK (month BETWEEN 1 AND 1
 | `/expenses` | all (champion scoped to team) | Filterable table (team, month, status, approval, search; filters live in the URL, 50 per page) · add/edit in a Sheet opened by `?new=1` / `?edit=ID`. Only champions and delegates create or edit; executive and finance review read-only. |
 | `/approvals` | executive, finance, champion | Queue of requests waiting on *my* step · quick approve/reject |
 | `/approvals/[id]` | involved users | Request detail + vertical step timeline with timestamps |
+| `/close` | finance (acts), executive (reads) | Months open/reconciled/closed with ledger vs tracker totals · `?month=N`: exceptions to explain, rejected ledger rows, Close button |
 
 **Headline sentence** (top of dashboard, generated from data):
 > Projected to finish **$412,300 USD over budget (+3.4%)**. Facilities accounts for 71%.
@@ -218,9 +231,9 @@ Each phase ends deployed. Deploy on day 1, not at the end.
 
 ## 8. Out of scope (MVP)
 
-CSV/Excel import · Settings screen (threshold editable only via seed) · Month close / adjustment entries · Delegate management UI · Multi-year selector · Real auth · Email notifications.
+CSV/Excel import · Settings screen (threshold editable only via seed) · Adjustment entries (month close explains differences, it doesn't post corrections) · Reopening a closed month · Delegate management UI · Multi-year selector · Real auth · Email notifications.
 
-Add month close first after MVP: it's the most interesting domain feature to talk through in interviews.
+Now in scope beyond the MVP: ledger ingestion and reconciliation (§2.8) and month close (§2.9).
 
 ---
 

@@ -8,15 +8,16 @@ import { buildSteps, needsApproval } from "@/lib/approvals";
 import { getCurrentUser } from "@/lib/dal";
 import { type FieldErrors, parseExpenseForm, parseStatus } from "@/lib/expense-form";
 import { toUsdCents } from "@/lib/fx";
+import { lockedByClose } from "@/lib/month-close";
 import { bookedConditions } from "@/lib/queries";
 
 export type SaveExpenseState =
   | null
   | { ok: true; approvalRequested: boolean; savedAt: number }
-  | { ok: false; errors: FieldErrors; formError?: "forbidden" | "locked" | "failed"; submittedAt: number };
+  | { ok: false; errors: FieldErrors; formError?: "forbidden" | "locked" | "closed" | "failed"; submittedAt: number };
 
 class FormErrors extends Error {
-  constructor(readonly errors: FieldErrors, readonly formError?: "forbidden" | "locked") {
+  constructor(readonly errors: FieldErrors, readonly formError?: "forbidden" | "locked" | "closed") {
     super("form errors");
   }
 }
@@ -30,6 +31,7 @@ class FormErrors extends Error {
  *   approval request is opened (reason required).
  * - Once an expense is in the approval flow (pending/approved), only its status can change, so an
  *   approved amount can't be edited upward afterwards. Rejected expenses are read-only.
+ * - A closed month (SPEC §2.9) is locked: no new expenses in it, no edits to its expenses, no moving one out.
  */
 export async function saveExpense(_prev: SaveExpenseState, fd: FormData): Promise<SaveExpenseState> {
   const submittedAt = Date.now();
@@ -48,6 +50,11 @@ export async function saveExpense(_prev: SaveExpenseState, fd: FormData): Promis
         : undefined;
       if (editId && (!existing || existing.teamId !== teamId)) throw new FormErrors({}, "forbidden");
       if (existing?.approval === "rejected") throw new FormErrors({}, "locked");
+      // ponytail: read, not locked; a month closed in the same instant as this save could still take it.
+      const closedMonths = new Set(
+        (await tx.select({ month: s.monthCloses.fiscalMonth }).from(s.monthCloses)).map((r) => r.month),
+      );
+      if (existing && lockedByClose(closedMonths, existing.fiscalMonth)) throw new FormErrors({}, "closed");
 
       const now = new Date();
       if (existing && existing.approval !== "none") {
@@ -60,6 +67,7 @@ export async function saveExpense(_prev: SaveExpenseState, fd: FormData): Promis
       const parsed = parseExpenseForm(fd);
       if (!parsed.ok) throw new FormErrors(parsed.errors);
       const input = parsed.data;
+      if (lockedByClose(closedMonths, input.fiscalMonth)) throw new FormErrors({}, "closed");
 
       if (input.lineItemId !== null) {
         const [item] = await tx

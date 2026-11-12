@@ -82,7 +82,7 @@ with checked as (
       when extract(year from s.posting_date::date) <> %(fiscal_year)s
         then 'month_out_of_range|posted ' || s.posting_date || ', outside FY' || %(fiscal_year)s
       when extract(month from s.posting_date::date) >= %(current_month)s
-        then 'month_out_of_range|posted ' || s.posting_date || ', in a month that is still open'
+        then 'month_out_of_range|posted ' || s.posting_date || ', in the current or a future month'
       when not exists (select 1 from teams t where t.cost_center = s.cost_center)
         then 'unknown_cost_center|cost center ' || s.cost_center || ' is not a team'
       when s.account_code <> %(unbudgeted)s

@@ -27,7 +27,7 @@ Pick a role on the login screen. Data resets every night (a scheduled job around
 |---|---|
 | **Executive** | Read the status line, then follow *Largest overrun* → Maintenance. Click any heat-map cell to see that team's month. Approve or reject from *Needs your decision*, which says up front what approving does to the forecast, and watch the projection move. |
 | **Champion · Facilities** | *Expenses → New expense*: choose **Unbudgeted**, **MXN**, type `94,500`. The form converts live and explains why it will need approval. Then approve your delegate's roof-repair request in *Approvals*. |
-| **Finance** | *Approvals → Waiting on me* only ever holds requests above the $25,000 threshold. Open one to see the timeline and what approving it does to the forecast. |
+| **Finance** | *Approvals → Waiting on me* only ever holds requests above the $25,000 threshold. Open one to see the timeline and what approving it does to the forecast. Then *Month close*: September's ledger and tracker differ by $45,234.44, and the four exceptions add up to exactly that. Explain each one, then close September. |
 
 ## What it does
 
@@ -35,6 +35,7 @@ Pick a role on the login screen. Data resets every night (a scheduled job around
 - **Team dashboard**: the same view for one team, plus line items, a savings callout, and a month drill-down from the heat map.
 - **Expenses**: filterable list (filters live in the URL) and an add/edit form with live currency conversion. Unbudgeted or over-plan spend automatically opens an approval request.
 - **Approvals**: *waiting on me / all pending / decided* queue and a request page with a step-by-step timeline, comments, and the forecast impact of approving.
+- **Month close** (finance; the executive reads it): each month open → reconciled → closed, with ledger and tracker totals, the reconciliation exceptions finance explains one by one, and the ledger rows that were rejected. Closing a month locks its expenses.
 
 ## Decisions worth explaining
 
@@ -98,7 +99,7 @@ committed for next year. The seed's random generator is re-created on every run,
 serverless instance resets to byte-identical data (verified by fingerprinting the tables). The same job
 then loads and reconciles the finance ledger (below).
 
-**Accessibility is checked, not assumed.** Lighthouse scores 100 on all seven main screens in
+**Accessibility is checked, not assumed.** Lighthouse scores 100 on all seven original screens in
 English and Spanish, light and dark. Getting there meant fixing real issues: a switch that lost
 its label, link buttons announced as buttons, visible text missing from accessible names, and a
 link distinguished by color alone. A score isn't the whole story, though: a later design review found two
@@ -110,8 +111,10 @@ have table views; the burn-up chart also has a text summary; there's a skip link
 build and a real Postgres. It walks each role's *Try it* script (approving $12,500 must move the
 projection by exactly $12,500). It also races two decisions on the same approval step and expects
 exactly one to be recorded. It requests another team's pages as a champion and expects a 404, and it
-checks that a forged session cookie is rejected. Finally it runs axe on the seven main screens in both
-languages and both themes: 28 scans, and any violation fails the build.
+checks that a forged session cookie is rejected. Finally it runs axe on the eight main screens (Month close included) in both
+languages and both themes: 32 scans, and any violation fails the build. A month-close spec
+explains September's four exceptions, closes the month, and checks that a champion can't touch a closed month, even
+with a tampered form.
 
 ## Data pipeline & reconciliation
 
@@ -131,7 +134,7 @@ flowchart LR
   exp[(tracker<br/>expenses)] --> rec
   rej -. explains .-> rec
   rec --> items[(recon_items<br/>matched · mismatch ·<br/>ledger-only · tracker-only)]
-  items -.-> app[Month close page<br/>next PR]
+  items --> app[Month close page:<br/>a person explains<br/>each exception]
 ```
 
 **The input is a file, as finance would send it.** [`ledger_fy2026.csv`](pipelines/data/ledger_fy2026.csv)
@@ -164,6 +167,13 @@ owns every table, so there's one migration history. [ADR 0001](docs/adr/0001-pip
 calls `/api/reset`, then runs the pipeline against production, so the ledger can't load before the tracker it
 reconciles against. CI runs the pytest suite (a test per defect, a test per validation rule, the no-op re-run)
 against a real Postgres.
+
+**A person explains every exception, and closing is earned.** The *Month close* page lists each exception with
+both amounts and, when there is one, the rejected ledger row behind it. Finance writes an explanation; nothing
+is corrected automatically. A month is *reconciled* once every exception is explained (derived, never stored,
+so it can't disagree with the exceptions), and only then can finance close it, in order. Closing locks the
+month's expenses, checked in the server action, not just hidden in the form. The pipeline keeps explanations
+across re-runs, clears one only if the amounts behind it change, and never deletes an explained exception.
 
 Limits: the ledger is derived from the tracker rather than independent; matching is by tracker reference
 only (no fuzzy match on vendor or amount); credits and reversals aren't accepted yet; and reconciliation is
@@ -242,8 +252,8 @@ secrets: `CRON_SECRET` (same value) and `DATABASE_URL` (Neon), and migrations ar
 
 ## Not in this version
 
-Budget import · the month close page (the pipeline behind it is here; the page is the next PR) · adjustment
-entries · settings screen · real authentication · notifications. They're scoped in [SPEC.md](SPEC.md).
+Budget import · adjustment entries (month close explains differences; it never posts corrections) · reopening a
+closed month · settings screen · real authentication · notifications. They're scoped in [SPEC.md](SPEC.md).
 
 ## License
 

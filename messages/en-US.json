@@ -29,7 +29,8 @@
     "approvals": "Approvals",
     "openMenu": "Open menu",
     "skip": "Skip to content",
-    "teamsProjected": "Teams · projected"
+    "teamsProjected": "Teams · projected",
+    "close": "Month close"
   },
   "topbar": {
     "fiscalYear": "Fiscal year",
@@ -283,14 +284,17 @@
       "lockedRejected": "Rejected expenses can’t be edited.",
       "save": "Save expense",
       "saving": "Saving…",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "lockedClosed": "This expense is in a closed month and can’t be edited.",
+      "monthClosed": "closed"
     },
     "toast": {
       "saved": "Expense saved",
       "savedApproval": "Expense saved. Approval request created.",
       "forbidden": "You can only edit your own team’s expenses.",
       "locked": "This expense can’t be edited anymore.",
-      "failed": "Couldn’t save. Check the form and try again."
+      "failed": "Couldn’t save. Check the form and try again.",
+      "closed": "That month is closed: its expenses can’t be added to or edited."
     },
     "errors": {
       "required": "Required.",
@@ -368,6 +372,97 @@
       "yourDecision": "Your decision",
       "notYours": "This step is waiting on {name}.",
       "closed": "Closed {date}"
+    }
+  },
+  "close": {
+    "title": "Month close",
+    "subtitle": "Finance’s ledger is reconciled against the tracker every night. Each exception needs a person to explain it; nothing is corrected automatically. A month closes once every exception is explained, and closing locks its expenses.",
+    "monthsTitle": "FY2026 by month",
+    "col": {
+      "month": "Month",
+      "status": "Status",
+      "matched": "Matched",
+      "exceptions": "Exceptions",
+      "ledger": "Ledger",
+      "tracker": "Tracker",
+      "difference": "Difference",
+      "journal": "Journal",
+      "description": "Description",
+      "reason": "Reason"
+    },
+    "unresolvedOf": "{unresolved} of {total} open",
+    "totalsNote": "Ledger: everything finance posted that loaded. Tracker: actual and accrued spend finance should have posted. Rejected ledger rows aren’t in either total.",
+    "state": {
+      "open": "Open",
+      "reconciled": "Reconciled",
+      "closed": "Closed"
+    },
+    "monthHeading": "{month} 2026",
+    "closeAction": "Close {month}",
+    "confirm": "Close {month}? Its expenses will be locked.",
+    "confirmButton": "Confirm",
+    "cancel": "Cancel",
+    "closedBy": "Closed by {name} on {date}.",
+    "newSinceClose": "{count, plural, one {# exception arrived after it closed.} other {# exceptions arrived after it closed.}}",
+    "readOnly": "Only finance resolves exceptions and closes months.",
+    "blocker": {
+      "current": "{month} is still the current month; it can be closed once it ends.",
+      "closed": "{month} is already closed.",
+      "noLedger": "The ledger for {month} hasn’t been loaded yet.",
+      "unresolved": "{count, plural, one {# exception still needs an explanation before {month} can close.} other {# exceptions still need an explanation before {month} can close.}}",
+      "previousOpen": "Months close in order: close the month before {month} first.",
+      "forbidden": "Only finance can close a month.",
+      "failed": "Couldn’t close {month}. Refresh and try again."
+    },
+    "exceptionsTitle": "{count, plural, =0 {No exceptions} one {# exception} other {# exceptions}}",
+    "noExceptions": "Every ledger posting matched the tracker this month.",
+    "noLedger": "No ledger postings for this month yet.",
+    "kind": {
+      "amount_mismatch": "Amount mismatch",
+      "ledger_only": "Ledger only",
+      "tracker_only": "Tracker only"
+    },
+    "hint": {
+      "amount_mismatch": "Both sides have it, for different amounts.",
+      "ledger_only": "Finance posted it; the tracker has no expense for it.",
+      "tracker_only": "The tracker has it as spent; finance hasn’t posted it."
+    },
+    "source": {
+      "ledger": "Ledger journal {journal}",
+      "tracker": "Tracker expense #{id} · {vendor}"
+    },
+    "none": "—",
+    "rejectLinked": "Its ledger row was rejected: {detail}.",
+    "resolution": "Explanation",
+    "resolutionHint": "At least 10 characters: what you checked, and what happens next.",
+    "resolve": "Resolve",
+    "resolving": "Saving…",
+    "resolved": "Explained",
+    "resolvedBy": "{name} · {date}",
+    "awaiting": "Waiting for finance to explain it.",
+    "errors": {
+      "invalid": "Write a short explanation."
+    },
+    "toast": {
+      "resolved": "Exception explained",
+      "closed": "{month} closed. Its expenses are locked.",
+      "forbidden": "Only finance can resolve exceptions.",
+      "invalid": "Write a short explanation (at least 10 characters).",
+      "gone": "Someone already explained this one. Refresh to see it.",
+      "failed": "Couldn’t save. Refresh and try again."
+    },
+    "rejectsTitle": "{count, plural, one {# rejected ledger row} other {# rejected ledger rows}}",
+    "rejectsHint": "These rows failed validation and weren’t loaded. They’re fixed in the ledger and re-sent, not explained here.",
+    "reason": {
+      "missing_field": "Missing field",
+      "bad_format": "Bad format",
+      "month_out_of_range": "Month out of range",
+      "unknown_cost_center": "Unknown cost center",
+      "unknown_account": "Unknown account",
+      "fx_rate_mismatch": "Wrong exchange rate",
+      "fx_amount_mismatch": "Amount doesn’t convert",
+      "duplicate_key": "Duplicate line",
+      "duplicate_posting": "Duplicate posting"
     }
   }
 }

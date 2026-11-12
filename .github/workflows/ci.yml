@@ -83,6 +83,9 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+      - uses: astral-sh/setup-uv@v6 # resetData() runs the ledger pipeline after each reset
+        with:
+          enable-cache: true
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm db:migrate

@@ -76,6 +76,43 @@ def test_a_corrected_row_updates_in_place(conn, tmp_path):
         "HVAC maintenance contract (January)", result.run_id)
 
 
+def resolve(conn, kind: str, comment: str = "Checked with AP; timing difference."):
+    return conn.execute(
+        """update recon_items set resolution = %s, resolved_by = (select id from users where role = 'finance'),
+             resolved_at = now() where kind = %s returning id""",
+        (comment, kind),
+    ).fetchone()[0]
+
+
+def test_a_rerun_keeps_resolutions(conn):
+    ingest_ledger(conn, LEDGER)
+    item = resolve(conn, "ledger_only")
+    ingest_ledger(conn, LEDGER)
+    assert one(conn, "select resolution from recon_items where id = %s", item) == ("Checked with AP; timing difference.",)
+
+
+def test_a_resolution_is_cleared_when_the_amounts_behind_it_change(conn):
+    ingest_ledger(conn, LEDGER)
+    item = resolve(conn, "amount_mismatch")
+    expense_id = one(conn, "select expense_id from recon_items where id = %s", item)[0]
+    # The tracker amount is corrected, but not to the ledger's figure: still a mismatch, new facts.
+    conn.execute("update expenses set amount_usd_cents = amount_usd_cents + 100 where id = %s", (expense_id,))
+    ingest_ledger(conn, LEDGER)
+    assert one(conn, "select kind::text, resolution from recon_items where id = %s", item) == ("amount_mismatch", None)
+
+
+def test_a_resolved_exception_survives_even_after_it_stops_applying(conn):
+    ingest_ledger(conn, LEDGER)
+    item = resolve(conn, "amount_mismatch", "Tracker understated; champion to correct.")
+    expense_id, ledger = one(conn, "select expense_id, ledger_usd_cents from recon_items where id = %s", item)
+    conn.execute("update expenses set amount_usd_cents = %s where id = %s", (ledger, expense_id))
+    ingest_ledger(conn, LEDGER)
+    # The expense now matches, and the explained mismatch stays on record next to it.
+    kinds = conn.execute("select kind::text, resolution is not null from recon_items where expense_id = %s order by kind",
+                         (expense_id,)).fetchall()
+    assert kinds == [("amount_mismatch", True), ("matched", False)]
+
+
 # ── One test per deliberate defect in the fictional ledger ─────────────────────────────────────
 
 def test_defect_duplicate_posting_is_rejected_and_the_expense_counts_once(loaded):
@@ -155,7 +192,7 @@ def write_csv(path: Path, *rows: dict) -> Path:
         ({"tracker_ref": "E12"}, "bad_format", 'tracker_ref "E12" is not an expense number'),
         ({"currency": "EUR"}, "bad_format", 'currency "EUR" is not USD or MXN'),
         ({"posting_date": "2025-12-31"}, "month_out_of_range", "posted 2025-12-31, outside FY2026"),
-        ({"posting_date": "2026-10-02"}, "month_out_of_range", "posted 2026-10-02, in a month that is still open"),
+        ({"posting_date": "2026-10-02"}, "month_out_of_range", "posted 2026-10-02, in the current or a future month"),
         ({"cost_center": "CC-999"}, "unknown_cost_center", "cost center CC-999 is not a team"),
         ({"fx_rate": "1.100000"}, "fx_rate_mismatch", "USD row with rate 1.100000"),
         ({"amount_usd": "101.00"}, "fx_amount_mismatch", "100.00 USD at 1.000000 is not 101.00 USD"),

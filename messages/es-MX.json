@@ -29,7 +29,8 @@
     "approvals": "Aprobaciones",
     "openMenu": "Abrir menú",
     "skip": "Saltar al contenido",
-    "teamsProjected": "Equipos · proyección"
+    "teamsProjected": "Equipos · proyección",
+    "close": "Cierre de mes"
   },
   "topbar": {
     "fiscalYear": "Año fiscal",
@@ -283,14 +284,17 @@
       "lockedRejected": "Los gastos rechazados no se pueden editar.",
       "save": "Guardar gasto",
       "saving": "Guardando…",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "lockedClosed": "Este gasto está en un mes cerrado y no se puede editar.",
+      "monthClosed": "cerrado"
     },
     "toast": {
       "saved": "Gasto guardado",
       "savedApproval": "Gasto guardado. Se creó una solicitud de aprobación.",
       "forbidden": "Solo puedes editar gastos de tu equipo.",
       "locked": "Este gasto ya no se puede editar.",
-      "failed": "No se pudo guardar. Revisa el formulario e intenta de nuevo."
+      "failed": "No se pudo guardar. Revisa el formulario e intenta de nuevo.",
+      "closed": "Ese mes está cerrado: no se pueden agregar ni editar sus gastos."
     },
     "errors": {
       "required": "Obligatorio.",
@@ -368,6 +372,97 @@
       "yourDecision": "Tu decisión",
       "notYours": "Este paso espera a {name}.",
       "closed": "Cerrada el {date}"
+    }
+  },
+  "close": {
+    "title": "Cierre de mes",
+    "subtitle": "Cada noche se concilia el libro de finanzas contra el tracker. Cada excepción necesita que una persona la explique; nada se corrige automáticamente. Un mes se cierra cuando todas sus excepciones están explicadas, y al cerrarlo sus gastos quedan bloqueados.",
+    "monthsTitle": "FY2026 por mes",
+    "col": {
+      "month": "Mes",
+      "status": "Estado",
+      "matched": "Conciliados",
+      "exceptions": "Excepciones",
+      "ledger": "Libro",
+      "tracker": "Tracker",
+      "difference": "Diferencia",
+      "journal": "Póliza",
+      "description": "Descripción",
+      "reason": "Motivo"
+    },
+    "unresolvedOf": "{unresolved} de {total} abiertas",
+    "totalsNote": "Libro: todo lo que finanzas registró y se cargó. Tracker: el gasto real y devengado que finanzas debió registrar. Las filas rechazadas del libro no están en ningún total.",
+    "state": {
+      "open": "Abierto",
+      "reconciled": "Conciliado",
+      "closed": "Cerrado"
+    },
+    "monthHeading": "{month} 2026",
+    "closeAction": "Cerrar {month}",
+    "confirm": "¿Cerrar {month}? Sus gastos quedarán bloqueados.",
+    "confirmButton": "Confirmar",
+    "cancel": "Cancelar",
+    "closedBy": "Cerrado por {name} el {date}.",
+    "newSinceClose": "{count, plural, one {Llegó # excepción después del cierre.} other {Llegaron # excepciones después del cierre.}}",
+    "readOnly": "Solo finanzas resuelve excepciones y cierra meses.",
+    "blocker": {
+      "current": "El mes de {month} sigue en curso; se podrá cerrar cuando termine.",
+      "closed": "El mes de {month} ya está cerrado.",
+      "noLedger": "El libro de {month} aún no se ha cargado.",
+      "unresolved": "{count, plural, one {Falta explicar # excepción para cerrar {month}.} other {Falta explicar # excepciones para cerrar {month}.}}",
+      "previousOpen": "Los meses se cierran en orden: primero cierra el mes anterior a {month}.",
+      "forbidden": "Solo finanzas puede cerrar un mes.",
+      "failed": "No se pudo cerrar {month}. Actualiza la página e intenta de nuevo."
+    },
+    "exceptionsTitle": "{count, plural, =0 {Sin excepciones} one {# excepción} other {# excepciones}}",
+    "noExceptions": "Todos los registros del libro coincidieron con el tracker este mes.",
+    "noLedger": "Aún no hay registros del libro para este mes.",
+    "kind": {
+      "amount_mismatch": "Montos distintos",
+      "ledger_only": "Solo en el libro",
+      "tracker_only": "Solo en el tracker"
+    },
+    "hint": {
+      "amount_mismatch": "Ambos lados lo tienen, con montos distintos.",
+      "ledger_only": "Finanzas lo registró; el tracker no tiene un gasto para él.",
+      "tracker_only": "El tracker lo tiene como gastado; finanzas no lo ha registrado."
+    },
+    "source": {
+      "ledger": "Póliza del libro {journal}",
+      "tracker": "Gasto del tracker #{id} · {vendor}"
+    },
+    "none": "—",
+    "rejectLinked": "Su fila en el libro fue rechazada: {detail}.",
+    "resolution": "Explicación",
+    "resolutionHint": "Al menos 10 caracteres: qué revisaste y qué sigue.",
+    "resolve": "Resolver",
+    "resolving": "Guardando…",
+    "resolved": "Explicada",
+    "resolvedBy": "{name} · {date}",
+    "awaiting": "En espera de que finanzas la explique.",
+    "errors": {
+      "invalid": "Escribe una explicación breve."
+    },
+    "toast": {
+      "resolved": "Excepción explicada",
+      "closed": "Mes de {month} cerrado. Sus gastos quedaron bloqueados.",
+      "forbidden": "Solo finanzas puede resolver excepciones.",
+      "invalid": "Escribe una explicación breve (al menos 10 caracteres).",
+      "gone": "Alguien ya explicó esta excepción. Actualiza la página para verla.",
+      "failed": "No se pudo guardar. Actualiza la página e intenta de nuevo."
+    },
+    "rejectsTitle": "{count, plural, one {# fila rechazada del libro} other {# filas rechazadas del libro}}",
+    "rejectsHint": "Estas filas no pasaron la validación y no se cargaron. Se corrigen en el libro y se reenvían; no se explican aquí.",
+    "reason": {
+      "missing_field": "Falta un campo",
+      "bad_format": "Formato inválido",
+      "month_out_of_range": "Mes fuera de rango",
+      "unknown_cost_center": "Centro de costos desconocido",
+      "unknown_account": "Cuenta desconocida",
+      "fx_rate_mismatch": "Tipo de cambio incorrecto",
+      "fx_amount_mismatch": "El monto no cuadra con el tipo de cambio",
+      "duplicate_key": "Línea duplicada",
+      "duplicate_posting": "Registro duplicado"
     }
   }
 }
