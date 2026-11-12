@@ -34,7 +34,8 @@ test("finance: explains every September exception, then closes the month", async
     await page.getByRole("button", { name: `Resolve: ${what}` }).click();
     await expect(page.getByLabel(`Explanation: ${what}`)).toHaveCount(0);
   }
-  await expect(page.getByText("Explained")).toHaveCount(4);
+  // Exact: "Exception explained" toasts and the subtitle contain the word too.
+  await expect(page.getByText("Explained", { exact: true })).toHaveCount(4);
   await expect(page.getByText(/Sofía Garza ·/)).toHaveCount(4);
 
   await page.getByRole("button", { name: "Close September" }).click();
