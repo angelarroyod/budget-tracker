@@ -48,11 +48,11 @@ function money(usdCents: number, currency: Currency, month: number) {
 }
 
 type Item = { code: string; en: string; es: string; weight: number };
-type Team = { key: string; budget: number; champion: string; vendors: string[]; items: Item[] };
+type Team = { key: string; costCenter: string; budget: number; champion: string; vendors: string[]; items: Item[] };
 
 const TEAMS: Team[] = [
   {
-    key: "facilities", budget: 7_200_000, champion: "Marco Treviño",
+    key: "facilities", costCenter: "CC-110", budget: 7_200_000, champion: "Marco Treviño",
     vendors: ["TecnoFrío Industrial", "LimpiaMax Servicios", "Energía del Norte", "Constructora Cerro Alto"],
     items: [
       { code: "6100", en: "HVAC maintenance contract", es: "Contrato de mantenimiento HVAC", weight: 0.35 },
@@ -62,7 +62,7 @@ const TEAMS: Team[] = [
     ],
   },
   {
-    key: "operations", budget: 4_000_000, champion: "Daniela Salinas",
+    key: "operations", costCenter: "CC-120", budget: 4_000_000, champion: "Daniela Salinas",
     vendors: ["Insumos Fabriles del Norte", "EmpaquePro", "Talento Temporal MX"],
     items: [
       { code: "6200", en: "Production consumables", es: "Consumibles de producción", weight: 0.45 },
@@ -71,7 +71,7 @@ const TEAMS: Team[] = [
     ],
   },
   {
-    key: "ehs", budget: 1_400_000, champion: "Jorge Villarreal",
+    key: "ehs", costCenter: "CC-130", budget: 1_400_000, champion: "Jorge Villarreal",
     vendors: ["SeguraTex", "Capacita Seguridad", "EcoResiduos Norte"],
     items: [
       { code: "6300", en: "PPE", es: "Equipo de protección personal", weight: 0.4 },
@@ -81,7 +81,7 @@ const TEAMS: Team[] = [
     ],
   },
   {
-    key: "quality", budget: 2_300_000, champion: "Patricia Leal",
+    key: "quality", costCenter: "CC-140", budget: 2_300_000, champion: "Patricia Leal",
     vendors: ["Metrología Precisa", "LabSur Insumos", "CertiNorte Auditores"],
     items: [
       { code: "6400", en: "Calibration services", es: "Servicios de calibración", weight: 0.3 },
@@ -91,7 +91,7 @@ const TEAMS: Team[] = [
     ],
   },
   {
-    key: "maintenance", budget: 3_100_000, champion: "Ricardo Elizondo",
+    key: "maintenance", costCenter: "CC-150", budget: 3_100_000, champion: "Ricardo Elizondo",
     vendors: ["Refacciones Garza", "Mantenimiento Integral Apodaca", "Lubricantes Sierra", "Herramientas del Valle"],
     items: [
       { code: "6500", en: "Spare parts", es: "Refacciones", weight: 0.4 },
@@ -101,7 +101,7 @@ const TEAMS: Team[] = [
     ],
   },
   {
-    key: "engineering", budget: 2_600_000, champion: "Fernanda Cavazos",
+    key: "engineering", costCenter: "CC-160", budget: 2_600_000, champion: "Fernanda Cavazos",
     vendors: ["DiseñoSoft", "Prototipos Rápidos MTY", "Ingeniería Aliada"],
     items: [
       { code: "6600", en: "Design software", es: "Software de diseño", weight: 0.25 },
@@ -110,7 +110,7 @@ const TEAMS: Team[] = [
     ],
   },
   {
-    key: "it", budget: 2_200_000, champion: "Héctor Montemayor",
+    key: "it", costCenter: "CC-170", budget: 2_200_000, champion: "Héctor Montemayor",
     vendors: ["Licencias Globales", "CompuNorte", "RedPlus Telecom", "NubeMX"],
     items: [
       { code: "6700", en: "Software licenses", es: "Licencias de software", weight: 0.4 },
@@ -120,7 +120,7 @@ const TEAMS: Team[] = [
     ],
   },
   {
-    key: "hr", budget: 1_200_000, champion: "Lucía Benavides",
+    key: "hr", costCenter: "CC-180", budget: 1_200_000, champion: "Lucía Benavides",
     vendors: ["Desarrollo Humano Consultores", "BuscaTalento", "Eventos Fundidora"],
     items: [
       { code: "6800", en: "Training programs", es: "Programas de capacitación", weight: 0.35 },
@@ -153,13 +153,15 @@ const at = (month: number, day: number) => new Date(Date.UTC(2026, month - 1, da
 export async function seed(db: DB) {
   rand = rng(2026);
   await db.transaction(async (tx) => {
-    await tx.execute(sql`truncate approval_steps, approval_requests, expenses, plans, line_items,
+    // Pipeline tables too: the nightly job reloads the ledger after this, so run ids restart at 1.
+    await tx.execute(sql`truncate recon_items, ledger_postings, ledger_rejects, ledger_staging, ingest_runs,
+      approval_steps, approval_requests, expenses, plans, line_items,
       users, teams, fx_rates, settings restart identity cascade`);
 
     await tx.insert(s.settings).values({ id: 1, financeThresholdCents: usd(25_000) });
     await tx.insert(s.fxRates).values(FX.map((r, i) => ({ month: i + 1, usdMxn: r.toFixed(6) })));
 
-    const teamRows = await tx.insert(s.teams).values(TEAMS.map((t) => ({ key: t.key }))).returning();
+    const teamRows = await tx.insert(s.teams).values(TEAMS.map((t) => ({ key: t.key, costCenter: t.costCenter }))).returning();
     const teamId = Object.fromEntries(teamRows.map((t) => [t.key, t.id]));
 
     const userRows = await tx

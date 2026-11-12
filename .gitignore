@@ -49,3 +49,8 @@ next-env.d.ts
 # design critique snapshots
 .impeccable/
 brag-output*/
+
+# python pipeline
+__pycache__/
+.venv/
+.pytest_cache/

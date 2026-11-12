@@ -17,8 +17,9 @@ All data fictional: **Cobalt Industrial – Monterrey Plant**, FY Jan–Dec 2026
 | DB | Postgres (Neon free tier) + Drizzle ORM | Real SQL, typed schema, migrations |
 | Validation | Zod | Same schema validates forms and server actions |
 | i18n | next-intl | ES/EN messages + locale-aware `Intl` formatting |
-| Hosting | Vercel + Vercel Cron | Nightly reseed of demo data |
-| Tests | Vitest | Money math only (forecast, FX, approval routing) |
+| Hosting | Vercel + GitHub Actions | Nightly job: reseed demo data, then load the ledger |
+| Pipeline | Python + psycopg + SQL | Ledger ingestion and reconciliation ([ADR 0001](docs/adr/0001-pipeline-language.md)) |
+| Tests | Vitest · pytest · Playwright | Money math and rules · pipeline · end-to-end and axe |
 
 No auth library. Demo buttons only (see §6).
 
@@ -87,12 +88,31 @@ Any rejection ends the request (expense → `rejected`, excluded from forecast).
 
 Once an expense is in the approval flow (pending or approved), only its status can change (e.g. committed → actual), so an approved amount can't be raised afterwards. Rejected expenses are read-only. An edit keeps the locked FX rate unless the currency changes.
 
+### 2.8 Ledger reconciliation
+Finance's ledger arrives as a CSV (`journal_id, line_no, posting_date, cost_center, account_code, tracker_ref,
+description, currency, amount_orig, fx_rate, amount_usd`). The pipeline (`pipelines/`):
+1. **Stages** every row as text, so malformed rows still land.
+2. **Validates** each row; the first failing rule is its reject reason: required fields · formats · posted in
+   FY2026 and in a month before the current one · cost center is a team · account is a line item's or `6990`
+   (unbudgeted) · rate equals the month's `fx_rates` rate (1 for USD) · the row's rate reproduces its USD
+   amount with the same rounding as `fx.ts` · not a repeated `journal_id + line_no` · not the same tracker
+   expense, currency and amount under a second journal. A broken file (header, column count, encoding) fails
+   the run.
+3. **Loads** valid rows with an upsert on `journal_id + line_no` that only writes changed rows. Re-running
+   the same file changes nothing ([ADR 0002](docs/adr/0002-ledger-idempotency-key.md)).
+4. **Reconciles** postings against the expenses finance books (`actual` or `accrued`, approval `none` or
+   `approved`, not next FY, in a month the ledger covers), summing postings per expense:
+   `matched` · `amount_mismatch` · `tracker_only` (linked to the rejected row when that's why) · `ledger_only`.
+5. **Records** every run, including failures, in `ingest_runs`, and logs one JSON object per line.
+
+Rejects are untrusted data; exceptions are trusted data that disagrees. Nothing is corrected automatically.
+
 ---
 
 ## 3. Data model (Drizzle)
 
 ```
-teams            id, key ('facilities'…), champion_id
+teams            id, key ('facilities'…), cost_center ('CC-110'…)
 users            id, name, email, role ('executive'|'champion'|'delegate'|'finance'), team_id?
 line_items       id, team_id, account_code, name_en, name_es
 plans            line_item_id, month (1–12), amount_cents          PK(line_item_id, month)
@@ -106,6 +126,17 @@ approval_requests id, expense_id, requester_id, reason, status, created_at, clos
 approval_steps   id, request_id, seq, role, approver_id?, decision ('pending'|'approved'|'rejected'|'skipped'),
                  comment?, decided_at?
 settings         id=1, finance_threshold_cents
+
+ingest_runs      id, source_file, source_sha256, status ('running'|'succeeded'|'failed'), started_at, finished_at,
+                 rows_read, rows_rejected, rows_inserted, rows_updated, rows_unchanged, error?
+ledger_staging   run_id, row_number, <every CSV column as text>                    PK(run_id, row_number)
+ledger_rejects   id, source_sha256, row_number, run_id, reason, detail, tracker_ref?, raw jsonb
+                                                                                  UNIQUE(source_sha256, row_number)
+ledger_postings  id, journal_id, line_no, posting_date, fiscal_month, team_id, account_code, tracker_ref?,
+                 description, currency, amount_orig_cents, fx_rate, amount_usd_cents, loaded_run_id, updated_run_id?
+                                                                                  UNIQUE(journal_id, line_no)
+recon_items      id, item_key (unique), kind, fiscal_month, team_id, expense_id?, posting_id?, reject_id?,
+                 tracker_usd_cents?, ledger_usd_cents?, run_id
 ```
 
 Constraints worth putting in the DB, not app code: `CHECK (month BETWEEN 1 AND 12)`, `CHECK (amount_orig_cents > 0)`, FK indexes on `team_id`, `line_item_id`, `request_id`.
@@ -162,9 +193,9 @@ Seed is a deterministic script (`db/seed.ts`, fixed random seed) so screenshots 
 
 - **Login**: a server action sets an httpOnly, signed cookie `{ userId }`. Middleware redirects to `/login` without it. A "Switch role" item in the top bar returns to `/login`.
 - **Authorization runs on the server for every query and action.** A champion can't read or write another team by editing a URL or form. The UI hiding things is not security.
-- **Reset**: Vercel Cron hits `/api/reset` nightly (protected by `CRON_SECRET`) → truncate + reseed.
+- **Reset**: a nightly GitHub Actions job hits `/api/reset` (protected by `CRON_SECRET`) → truncate + reseed, then runs the ledger pipeline against the same database. Business tables come out byte-identical every night; only run timestamps differ.
 - **Invoice upload**: seeded expenses link to sample PDFs in `/public/invoices`. Upload is disabled in the demo (tooltip: "Disabled in public demo") to avoid hosting arbitrary files. Wire to Vercel Blob later if wanted.
-- Banner: "Public demo · fictional data · resets nightly". The cron is scheduled for 03:00 UTC, but Vercel Hobby runs it anywhere in that hour, so the banner names no exact time.
+- Banner: "Public demo · fictional data · resets nightly". The job is scheduled for 03:00 UTC, but GitHub may start it late, so the banner names no exact time.
 
 ---
 

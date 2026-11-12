@@ -3,8 +3,10 @@ import {
   bigint,
   boolean,
   check,
+  date,
   index,
   integer,
+  jsonb,
   numeric,
   pgEnum,
   pgTable,
@@ -13,6 +15,7 @@ import {
   smallint,
   text,
   timestamp,
+  unique,
 } from "drizzle-orm/pg-core";
 
 // Money is always integer cents. mode "number" is safe: Number.MAX_SAFE_INTEGER cents ≈ $90 trillion.
@@ -29,6 +32,7 @@ export const stepRoleEnum = pgEnum("step_role", ["champion", "executive", "finan
 export const teams = pgTable("teams", {
   id: serial().primaryKey(),
   key: text().notNull().unique(), // i18n key: "facilities", "ehs", …
+  costCenter: text("cost_center").notNull().unique(), // how the finance ledger names the team: "CC-110", …
   // ponytail: no FK to users (circular). Champion is resolved via users.team_id + role.
 });
 
@@ -157,6 +161,135 @@ export const settings = pgTable(
     financeThresholdCents: cents("finance_threshold_cents").notNull(),
   },
   (t) => [check("settings_singleton", sql`${t.id} = 1`)],
+);
+
+// ── Finance-ledger ingestion and reconciliation (pipelines/, Python). ──────────────────────────
+// Drizzle owns the schema so there is one migration history; the pipeline only reads and writes rows.
+
+export const runStatusEnum = pgEnum("run_status", ["running", "succeeded", "failed"]);
+export const rejectReasonEnum = pgEnum("reject_reason", [
+  "missing_field", // a required column is blank
+  "bad_format", // not a date / integer / 2-decimal amount / known currency
+  "month_out_of_range", // outside FY2026, or in a month that is still open
+  "unknown_cost_center",
+  "unknown_account",
+  "fx_rate_mismatch", // rate differs from the month's rate in fx_rates
+  "fx_amount_mismatch", // the row's own rate doesn't reproduce its USD amount
+  "duplicate_key", // same journal_id + line_no twice in one file
+  "duplicate_posting", // same tracker expense and amount posted under a second journal
+]);
+export const reconKindEnum = pgEnum("recon_kind", ["matched", "amount_mismatch", "ledger_only", "tracker_only"]);
+
+/** One row per pipeline run, success or failure: the run log the Data health panel reads. */
+export const ingestRuns = pgTable("ingest_runs", {
+  id: serial().primaryKey(),
+  sourceFile: text("source_file").notNull(),
+  sourceSha256: text("source_sha256").notNull(),
+  status: runStatusEnum().notNull().default("running"),
+  startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
+  finishedAt: timestamp("finished_at", { withTimezone: true }),
+  rowsRead: integer("rows_read"),
+  rowsRejected: integer("rows_rejected"),
+  rowsInserted: integer("rows_inserted"),
+  rowsUpdated: integer("rows_updated"),
+  rowsUnchanged: integer("rows_unchanged"),
+  error: text(),
+});
+
+/** The file exactly as received: every column is text, so a malformed row still lands and can be rejected with a reason. */
+export const ledgerStaging = pgTable(
+  "ledger_staging",
+  {
+    runId: integer("run_id").notNull().references(() => ingestRuns.id),
+    rowNumber: integer("row_number").notNull(), // 1 = first data row after the header
+    journalId: text("journal_id"),
+    lineNo: text("line_no"),
+    postingDate: text("posting_date"),
+    costCenter: text("cost_center"),
+    accountCode: text("account_code"),
+    trackerRef: text("tracker_ref"),
+    description: text(),
+    currency: text(),
+    amountOrig: text("amount_orig"),
+    fxRate: text("fx_rate"),
+    amountUsd: text("amount_usd"),
+  },
+  (t) => [primaryKey({ columns: [t.runId, t.rowNumber] })],
+);
+
+/** Rows that failed validation. Keyed by file hash + row, so re-running the same file adds nothing. */
+export const ledgerRejects = pgTable(
+  "ledger_rejects",
+  {
+    id: serial().primaryKey(),
+    sourceSha256: text("source_sha256").notNull(),
+    rowNumber: integer("row_number").notNull(),
+    runId: integer("run_id").notNull().references(() => ingestRuns.id), // first run that saw it
+    reason: rejectReasonEnum().notNull(),
+    detail: text().notNull(),
+    trackerRef: text("tracker_ref"), // as received, so a reject can be linked to the tracker expense it was for
+    raw: jsonb().notNull(),
+  },
+  (t) => [unique("ledger_rejects_source_row").on(t.sourceSha256, t.rowNumber)],
+);
+
+/**
+ * Validated ledger lines. Natural key = journal_id + line_no: the identity finance itself uses, so a
+ * re-sent file updates in place instead of duplicating. tracker_ref has no FK on purpose: the ledger
+ * is an outside system and may reference expenses the tracker doesn't have.
+ */
+export const ledgerPostings = pgTable(
+  "ledger_postings",
+  {
+    id: serial().primaryKey(),
+    journalId: text("journal_id").notNull(),
+    lineNo: smallint("line_no").notNull(),
+    postingDate: date("posting_date").notNull(),
+    fiscalMonth: smallint("fiscal_month").notNull(),
+    teamId: integer("team_id").notNull().references(() => teams.id),
+    accountCode: text("account_code").notNull(),
+    trackerRef: integer("tracker_ref"),
+    description: text().notNull(),
+    currency: currencyEnum().notNull(),
+    amountOrigCents: cents("amount_orig_cents").notNull(),
+    fxRate: numeric("fx_rate", { precision: 12, scale: 6 }).notNull(),
+    amountUsdCents: cents("amount_usd_cents").notNull(),
+    loadedRunId: integer("loaded_run_id").notNull().references(() => ingestRuns.id),
+    updatedRunId: integer("updated_run_id").references(() => ingestRuns.id), // only set when a later file changed the row
+  },
+  (t) => [
+    unique("ledger_postings_natural_key").on(t.journalId, t.lineNo),
+    index("ledger_postings_tracker_ref_idx").on(t.trackerRef),
+    index("ledger_postings_team_month_idx").on(t.teamId, t.fiscalMonth),
+    check("ledger_postings_month", sql`${t.fiscalMonth} between 1 and 12`),
+    check("ledger_postings_amount", sql`${t.amountOrigCents} > 0 and ${t.amountUsdCents} > 0`),
+  ],
+);
+
+/**
+ * Reconciliation of ledger postings against tracker expenses, one row per expense or unmatched posting.
+ * item_key is stable across runs ("matched:E42", "ledger_only:JE-2026-09-0107:1"), so recomputing an
+ * unchanged ledger rewrites nothing.
+ */
+export const reconItems = pgTable(
+  "recon_items",
+  {
+    id: serial().primaryKey(),
+    itemKey: text("item_key").notNull().unique(),
+    kind: reconKindEnum().notNull(),
+    fiscalMonth: smallint("fiscal_month").notNull(),
+    teamId: integer("team_id").notNull().references(() => teams.id),
+    expenseId: integer("expense_id").references(() => expenses.id),
+    postingId: integer("posting_id").references(() => ledgerPostings.id), // set for ledger-only items
+    rejectId: integer("reject_id").references(() => ledgerRejects.id), // tracker-only because its ledger row was rejected
+    trackerUsdCents: cents("tracker_usd_cents"),
+    ledgerUsdCents: cents("ledger_usd_cents"),
+    runId: integer("run_id").notNull().references(() => ingestRuns.id), // run that first produced it
+  },
+  (t) => [
+    index("recon_items_team_month_idx").on(t.teamId, t.fiscalMonth),
+    index("recon_items_expense_idx").on(t.expenseId),
+  ],
 );
 
 export type ExpenseStatus = (typeof expenseStatusEnum.enumValues)[number];

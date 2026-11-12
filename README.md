@@ -21,7 +21,7 @@ so it can run as a public demo. No code, data or terminology comes from that emp
 
 ## Try it
 
-Pick a role on the login screen. Data resets every night (scheduled for 03:00 UTC; Vercel Hobby runs it within that hour), so click freely.
+Pick a role on the login screen. Data resets every night (a scheduled job around 03:00 UTC), so click freely.
 
 | Role | Try this |
 |---|---|
@@ -91,11 +91,12 @@ lock, so a double click can't record two decisions.
 bug (*"as of September"* in October, because Vercel runs in UTC and the plant is UTC−6) led to
 building month labels mid-month in UTC, with a test across UTC−11 to UTC+14.
 
-**A public demo that cleans up after itself.** A Vercel Cron job calls `/api/reset` nightly, which
+**A public demo that cleans up after itself.** A nightly GitHub Actions job calls `/api/reset`, which
 reloads a deterministic seed whose story is visible at a glance: Facilities at risk, Maintenance
 already over after an $820k emergency purchase, savings in Quality and IT, a $1M microscope
 committed for next year. The seed's random generator is re-created on every run, so a warm
-serverless instance resets to byte-identical data (verified by fingerprinting the tables).
+serverless instance resets to byte-identical data (verified by fingerprinting the tables). The same job
+then loads and reconciles the finance ledger (below).
 
 **Accessibility is checked, not assumed.** Lighthouse scores 100 on all seven main screens in
 English and Spanish, light and dark. Getting there meant fixing real issues: a switch that lost
@@ -112,6 +113,62 @@ exactly one to be recorded. It requests another team's pages as a champion and e
 checks that a forged session cookie is rejected. Finally it runs axe on the seven main screens in both
 languages and both themes: 28 scans, and any violation fails the build.
 
+## Data pipeline & reconciliation
+
+Finance keeps its own ledger; the tracker is operations' record of the same spend. At month end the
+two disagree, and someone has to say why before the month can be closed. A Python pipeline
+([`pipelines/`](pipelines/)) loads finance's ledger file, validates it, and reconciles it line by line
+against the tracker.
+
+```mermaid
+flowchart LR
+  csv[/ledger CSV/] --> stg[(ledger_staging<br/>all text)]
+  stg --> val{validate<br/>9 rules}
+  val -- fails --> rej[(ledger_rejects<br/>+ reason)]
+  val -- passes --> up[upsert on<br/>journal_id + line_no]
+  up --> post[(ledger_postings)]
+  post --> rec{reconcile}
+  exp[(tracker<br/>expenses)] --> rec
+  rej -. explains .-> rec
+  rec --> items[(recon_items<br/>matched · mismatch ·<br/>ledger-only · tracker-only)]
+  items -.-> app[Month close page<br/>next PR]
+```
+
+**The input is a file, as finance would send it.** [`ledger_fy2026.csv`](pipelines/data/ledger_fy2026.csv)
+is generated from the seeded tracker and then broken on purpose: January–August post cleanly, September has
+six defects (a duplicate posting, an unknown account, an amount mismatch, a posting the tracker doesn't
+have, an expense the ledger doesn't have, a peso invoice at the wrong rate). It's committed so you can open
+it, and a test fails if it drifts from what the generator produces.
+
+**A bad row is rejected with a reason, not dropped and not fatal.** Staging stores every column as text, so
+a malformed row still lands. Validation is one ordered SQL `CASE` per row: the first rule that fails is the
+reason, and each branch only casts what earlier branches proved castable. A broken *file* (wrong header,
+ragged rows) fails the whole run instead. Either way the run is recorded.
+
+**Rejected and unexplained are different things.** A rejected row is data that can't be trusted to load
+(the duplicate, the unknown account, the wrong rate). An exception is trusted data that disagrees with the
+tracker (the mismatch, the ledger-only posting, the tracker-only expense). The two connect: the rejected
+peso invoice leaves its expense without a posting, so it shows as tracker-only *and* points at the
+rejected row, instead of disappearing.
+
+**Re-running the same file changes nothing.** Postings are upserted on finance's own key, `journal_id +
+line_no`, and a row is only written when a value actually changed (`IS DISTINCT FROM`); rejects are keyed by
+file hash and row. A test loads the file twice and compares table fingerprints. The run log is the one
+table that grows, because "it ran and changed nothing" is worth knowing. [ADR 0002](docs/adr/0002-ledger-idempotency-key.md)
+
+**SQL does the set logic, Python runs it.** Python reads the file, runs each step inside one transaction
+under an advisory lock, records `ingest_runs`, and logs one JSON object per line with the run id. Drizzle
+owns every table, so there's one migration history. [ADR 0001](docs/adr/0001-pipeline-language.md)
+
+**It runs after the reset, in the same job.** The nightly job moved from Vercel Cron to GitHub Actions: it
+calls `/api/reset`, then runs the pipeline against production, so the ledger can't load before the tracker it
+reconciles against. CI runs the pytest suite (a test per defect, a test per validation rule, the no-op re-run)
+against a real Postgres.
+
+Limits: the ledger is derived from the tracker rather than independent; matching is by tracker reference
+only (no fuzzy match on vendor or amount); credits and reversals aren't accepted yet; and reconciliation is
+a nightly snapshot, so a visitor's edit isn't reconciled until the next run.
+
 ## Screenshots
 
 | | |
@@ -124,7 +181,8 @@ languages and both themes: 28 scans, and any violation fails the build.
 ## Stack
 
 Next.js 16 (App Router, server actions) · TypeScript · Tailwind CSS 4 · shadcn/ui (Base UI) ·
-Recharts · next-intl · Drizzle ORM · Postgres (Neon in production, PGlite locally) · Vitest · Vercel
+Recharts · next-intl · Drizzle ORM · Postgres (Neon in production, PGlite locally) · Vitest · Vercel ·
+Python 3.12 + psycopg + pytest for the ledger pipeline · GitHub Actions for CI and the nightly job
 
 ```
 src/
@@ -132,7 +190,9 @@ src/
   components/     dashboard, expenses and approvals UI; ui/ is shadcn
   lib/            forecast, fx, approvals, session (pure + tested); queries and dal (server-only)
   db/             Drizzle schema and the deterministic seed
+pipelines/        Python: ledger ingestion, validation, reconciliation, the fictional ledger CSV
 messages/         en-US and es-MX translations
+docs/adr/         architecture decision records
 ```
 
 See [SPEC.md](SPEC.md) for the full rules, data model and build plan.
@@ -140,6 +200,7 @@ See [SPEC.md](SPEC.md) for the full rules, data model and build plan.
 ## Run locally
 
 No Docker or Postgres install needed: `db:local` runs an embedded Postgres (PGlite) on port 5432.
+The ledger pipeline needs [uv](https://docs.astral.sh/uv/), which installs Python and its packages itself.
 
 ```bash
 pnpm install
@@ -147,12 +208,16 @@ cp .env.example .env # then set SESSION_SECRET (32+ random characters)
 pnpm db:local        # terminal 1: keep running
 pnpm db:migrate      # terminal 2
 pnpm db:seed
+pnpm pipeline       # load and reconcile the finance ledger
 pnpm dev
 ```
 
 | Script | What it does |
 |---|---|
 | `test` | Unit tests (forecast, FX, approvals, session, form parsing, translations) |
+| `test:pipeline` | pytest for the ledger pipeline (needs a migrated, seeded database; each test rolls back) |
+| `pipeline` | Load and reconcile `pipelines/data/ledger_fy2026.csv` into `DATABASE_URL` |
+| `pipeline:generate` | Rewrite the ledger CSV from the seeded tracker (after changing the seed) |
 | `test:e2e` | Playwright on a production build: role flows, security checks, axe scans (needs `db:local` running; reseeds the database) |
 | `typecheck` | Generate Next route types, then `tsc` |
 | `db:local` | Embedded Postgres, data in `.pglite/` |
@@ -169,12 +234,16 @@ On Vercel with the Neon integration. Environment variables:
 |---|---|
 | `DATABASE_URL` | Neon pooled connection string (set by the Vercel Neon integration) |
 | `SESSION_SECRET` | 32+ random characters; signs the demo session cookie |
-| `CRON_SECRET` | Random string; Vercel Cron sends it to `/api/reset` (scheduled in `vercel.json`) |
+| `CRON_SECRET` | Random string; the nightly job sends it to `/api/reset` |
+
+The nightly job ([`nightly-reset.yml`](.github/workflows/nightly-reset.yml)) needs two GitHub Actions
+secrets: `CRON_SECRET` (same value) and `DATABASE_URL` (Neon), and migrations are applied with
+`pnpm db:migrate` against Neon before deploying code that needs them.
 
 ## Not in this version
 
-CSV/Excel budget import · month close with adjustment entries · settings screen · real
-authentication · notifications. They're scoped in [SPEC.md](SPEC.md); month close is next.
+Budget import · the month close page (the pipeline behind it is here; the page is the next PR) · adjustment
+entries · settings screen · real authentication · notifications. They're scoped in [SPEC.md](SPEC.md).
 
 ## License
 

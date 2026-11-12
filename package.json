@@ -15,7 +15,10 @@
     "db:seed": "tsx --env-file=.env src/db/seed.ts",
     "db:studio": "drizzle-kit studio",
     "test": "vitest run src",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:pipeline": "uv run --directory pipelines --env-file ../.env pytest",
+    "pipeline": "uv run --directory pipelines --env-file ../.env python -m budget_pipelines ingest-ledger data/ledger_fy2026.csv",
+    "pipeline:generate": "uv run --directory pipelines --env-file ../.env python -m budget_pipelines generate-ledger data/ledger_fy2026.csv"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
