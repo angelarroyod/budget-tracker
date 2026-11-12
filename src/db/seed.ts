@@ -154,7 +154,7 @@ export async function seed(db: DB) {
   rand = rng(2026);
   await db.transaction(async (tx) => {
     // Pipeline tables too: the nightly job reloads the ledger after this, so run ids restart at 1.
-    await tx.execute(sql`truncate recon_items, ledger_postings, ledger_rejects, ledger_staging, ingest_runs,
+    await tx.execute(sql`truncate month_closes, recon_items, ledger_postings, ledger_rejects, ledger_staging, ingest_runs,
       approval_steps, approval_requests, expenses, plans, line_items,
       users, teams, fx_rates, settings restart identity cascade`);
 
@@ -245,6 +245,11 @@ export async function seed(db: DB) {
         });
       }
     }
+
+    // January–August are already closed; September is the month being closed (it has the ledger's defects).
+    await tx.insert(s.monthCloses).values(
+      Array.from({ length: CURRENT_MONTH - 2 }, (_, i) => ({ fiscalMonth: i + 1, closedBy: finance, closedAt: at(i + 2, 5) })),
+    );
 
     await tx.insert(s.plans).values(plans);
     await tx.insert(s.expenses).values(expenses);

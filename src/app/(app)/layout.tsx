@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { countWaitingOn } from "@/lib/approval-queries";
-import { getCurrentUser } from "@/lib/dal";
+import { canSeeMonthClose, getCurrentUser } from "@/lib/dal";
 import { percent } from "@/lib/format";
 import { getSiteSnapshot } from "@/lib/queries";
 
@@ -41,6 +41,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
       : { href: "/", label: t("dashboard"), icon: "dashboard" },
     { href: "/expenses", label: t("expenses"), icon: "expenses" },
     { href: "/approvals", label: t("approvals"), icon: "approvals", badge: { count: waiting, label: tApprovals("mine") } },
+    ...(canSeeMonthClose(user) ? [{ href: "/close", label: t("close"), icon: "close" as const }] : []),
   ];
 
   // Site-wide roles get every team's landing point, worst first. Same cached snapshot the dashboard reads.

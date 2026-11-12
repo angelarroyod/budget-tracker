@@ -22,6 +22,9 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser> => {
 export const canSeeTeam = (user: CurrentUser, teamId: number) =>
   user.role === "executive" || user.role === "finance" || user.teamId === teamId;
 
+/** Month close is finance's: finance acts on it, the executive reads it, champions and delegates don't see it. */
+export const canSeeMonthClose = (user: CurrentUser) => user.role === "executive" || user.role === "finance";
+
 /** Where each role lands after login. */
 export const homePath = (user: CurrentUser) =>
   user.role === "champion" || user.role === "delegate" ? `/teams/${user.teamId}` : "/";

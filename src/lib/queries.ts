@@ -187,7 +187,7 @@ export async function getExpenseList(f: ExpenseFilters) {
  * being edited. `editId` is ignored unless it belongs to `teamId`.
  */
 export async function getExpenseFormData(teamId: number, editId?: number) {
-  const [items, planSums, bookedSums, rates, editing] = await Promise.all([
+  const [items, planSums, bookedSums, rates, editing, closes] = await Promise.all([
     db.select().from(s.lineItems).where(eq(s.lineItems.teamId, teamId)).orderBy(asc(s.lineItems.accountCode)),
     db
       .select({ lineItemId: s.plans.lineItemId, cents: sql<string>`sum(${s.plans.amountCents})` })
@@ -204,6 +204,7 @@ export async function getExpenseFormData(teamId: number, editId?: number) {
     editId
       ? db.select().from(s.expenses).where(and(eq(s.expenses.id, editId), eq(s.expenses.teamId, teamId)))
       : Promise.resolve([]),
+    db.select({ month: s.monthCloses.fiscalMonth }).from(s.monthCloses),
   ]);
   const plan = new Map(planSums.map((p) => [p.lineItemId, Number(p.cents)]));
   const booked = new Map(bookedSums.map((b) => [b.lineItemId, Number(b.cents)]));
@@ -218,6 +219,7 @@ export async function getExpenseFormData(teamId: number, editId?: number) {
     })),
     fxRates: rates.map((r) => Number(r.usdMxn)), // index 0 = January
     editing: editing[0] ?? null,
+    closedMonths: closes.map((c) => c.month),
   };
 }
 

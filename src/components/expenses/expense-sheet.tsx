@@ -38,11 +38,13 @@ export function ExpenseSheet({
   expense,
   lineItems,
   fxRates,
+  closedMonths,
   closeHref,
 }: {
   expense: EditableExpense | null; // null = new
   lineItems: SheetLineItem[];
   fxRates: number[];
+  closedMonths: number[]; // finance closed these: no new expenses in them, no edits to theirs
   closeHref: string;
 }) {
   const t = useTranslations("expenses");
@@ -63,8 +65,10 @@ export function ExpenseSheet({
   const [amount, setAmount] = useState(expense ? (expense.amountOrigCents / 100).toFixed(2) : "");
   const [nextFy, setNextFy] = useState(expense?.nextFy ?? false);
 
-  const locked = expense !== null && expense.approval !== "none"; // only status may change
   const rejected = expense?.approval === "rejected";
+  const monthClosed = expense !== null && closedMonths.includes(expense.fiscalMonth);
+  const locked = expense !== null && (expense.approval !== "none" || monthClosed); // in the approval flow: only status may change
+  const readOnly = rejected || monthClosed; // not even the status
   const close = () => router.replace(closeHref, { scroll: false });
 
   useEffect(() => {
@@ -116,7 +120,7 @@ export function ExpenseSheet({
           {locked && (
             <SheetDescription className="flex items-center gap-1.5">
               <LockIcon className="size-3.5" aria-hidden />
-              {rejected ? t("form.lockedRejected") : t("form.locked")}
+              {rejected ? t("form.lockedRejected") : monthClosed ? t("form.lockedClosed") : t("form.locked")}
             </SheetDescription>
           )}
         </SheetHeader>
@@ -156,14 +160,17 @@ export function ExpenseSheet({
                 <Label htmlFor={`${id}-month`}>{t("form.month")}</Label>
                 <NativeSelect id={`${id}-month`} name="fiscalMonth" value={month} onChange={(e) => setMonth(Number(e.target.value))} className="w-full" disabled={locked} {...a11y("fiscalMonth")}>
                   {months.map((m) => (
-                    <NativeSelectOption key={m} value={m}>{format.dateTime(fiscalMonthDate(m), { month: "long" })}</NativeSelectOption>
+                    <NativeSelectOption key={m} value={m} disabled={closedMonths.includes(m) && m !== expense?.fiscalMonth}>
+                      {format.dateTime(fiscalMonthDate(m), { month: "long" })}
+                      {closedMonths.includes(m) ? ` · ${t("form.monthClosed")}` : ""}
+                    </NativeSelectOption>
                   ))}
                 </NativeSelect>
                 {fieldError("fiscalMonth")}
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor={`${id}-status`}>{t("form.status")}</Label>
-                <NativeSelect id={`${id}-status`} name="status" value={status} onChange={(e) => setStatus(e.target.value as ExpenseStatus)} className="w-full" disabled={rejected} {...a11y("status")}>
+                <NativeSelect id={`${id}-status`} name="status" value={status} onChange={(e) => setStatus(e.target.value as ExpenseStatus)} className="w-full" disabled={readOnly} {...a11y("status")}>
                   {(["committed", "accrued", "actual"] as const).map((s) => (
                     <NativeSelectOption key={s} value={s}>{tStatus(s)}</NativeSelectOption>
                   ))}
@@ -250,7 +257,7 @@ export function ExpenseSheet({
 
           <SheetFooter className="flex-row justify-end border-t">
             <Button type="button" variant="outline" onClick={close}>{t("form.cancel")}</Button>
-            {!rejected && (
+            {!readOnly && (
               <Button type="submit" disabled={pending}>{pending ? t("form.saving") : t("form.save")}</Button>
             )}
           </SheetFooter>

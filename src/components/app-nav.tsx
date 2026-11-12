@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckSquareIcon, ChevronRightIcon, LayoutDashboardIcon, MenuIcon, ReceiptIcon, UsersIcon } from "lucide-react";
+import { CalendarCheckIcon, CheckSquareIcon, ChevronRightIcon, LayoutDashboardIcon, MenuIcon, ReceiptIcon, UsersIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import type { Status } from "@/lib/forecast";
 
-const ICONS = { dashboard: LayoutDashboardIcon, team: UsersIcon, expenses: ReceiptIcon, approvals: CheckSquareIcon };
+const ICONS = { dashboard: LayoutDashboardIcon, team: UsersIcon, expenses: ReceiptIcon, approvals: CheckSquareIcon, close: CalendarCheckIcon };
 export type NavItem = { href: string; label: string; icon: keyof typeof ICONS; badge?: { count: number; label: string } };
 /** Sidebar shortcut to a team, with its projected year-end as % of budget. */
 export type NavTeam = { href: string; label: string; status: Status; statusLabel: string; pct: string };

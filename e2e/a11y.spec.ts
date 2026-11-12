@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { loginAs, resetData, type Role } from "./helpers";
 
-// The README's Lighthouse claim as a regression gate: the seven main screens, in both locales and
+// The README's Lighthouse claim as a regression gate: the main screens, in both locales and
 // both themes, must have zero axe violations against WCAG 2.2 A/AA.
 
 const SCREENS: { name: string; role: Role | null; open: (page: Page) => Promise<unknown> }[] = [
@@ -28,6 +28,7 @@ const SCREENS: { name: string; role: Role | null; open: (page: Page) => Promise<
       await expect(page).toHaveURL(/\/approvals\/\d+$/);
     },
   },
+  { name: "month close", role: "Finance", open: (page) => page.goto("/close") },
 ];
 
 test.beforeAll(async ({ request }) => resetData(request));

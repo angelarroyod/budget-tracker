@@ -23,3 +23,13 @@ export const moneyShort = (f: Formatter, cents: number, digits = 1) =>
 
 export const percent = (f: Formatter, ratio: number, signed = false) =>
   f.number(ratio, { style: "percent", maximumFractionDigits: 1, signDisplay: signed ? "exceptZero" : "auto" });
+
+/** To the cent, for reconciliation, where a $0.40 difference is still a difference. `signed` shows "+" too. */
+export const moneyExact = (f: Formatter, cents: number, signed = false) =>
+  f.number(cents / 100, {
+    style: "currency",
+    currency: "USD",
+    currencyDisplay: "code",
+    minimumFractionDigits: 2,
+    signDisplay: signed ? "exceptZero" : "auto",
+  });

@@ -9,6 +9,8 @@ across lines still matches. Outcomes, per expense or per unmatched posting:
   amount_mismatch  both sides exist, amounts differ
   tracker_only     no posting; linked to the rejected ledger row when that's why
   ledger_only      a posting with no (eligible) tracker expense behind it
+Exceptions are resolved by a person, with a comment, on the Month close page. A re-run keeps those
+resolutions, and clears one only when the amounts behind it change.
 """
 
 import psycopg
@@ -61,7 +63,9 @@ select d.*, %(run_id)s from recon_desired d
 on conflict (item_key) do update set
   fiscal_month = excluded.fiscal_month, team_id = excluded.team_id, posting_id = excluded.posting_id,
   reject_id = excluded.reject_id, tracker_usd_cents = excluded.tracker_usd_cents,
-  ledger_usd_cents = excluded.ledger_usd_cents
+  ledger_usd_cents = excluded.ledger_usd_cents,
+  -- The facts behind the exception changed, so the old explanation no longer applies.
+  resolution = null, resolved_by = null, resolved_at = null
 where (recon_items.fiscal_month, recon_items.team_id, recon_items.posting_id, recon_items.reject_id,
        recon_items.tracker_usd_cents, recon_items.ledger_usd_cents)
   is distinct from
@@ -75,6 +79,9 @@ def reconcile(conn: psycopg.Connection, run_id: int) -> dict[str, int]:
     conn.execute("drop table if exists recon_desired")
     conn.execute(DESIRED)
     conn.execute(UPSERT, {"run_id": run_id})
-    # An outcome that no longer holds (say, a mismatch the tracker has since corrected) goes away.
-    conn.execute("delete from recon_items where item_key not in (select item_key from recon_desired)")
+    # An outcome that no longer holds (say, a mismatch the tracker has since corrected) goes away,
+    # unless someone already explained it: a person's resolution is never deleted by a batch job.
+    conn.execute(
+        "delete from recon_items where resolved_at is null and item_key not in (select item_key from recon_desired)"
+    )
     return dict(conn.execute("select kind::text, count(*) from recon_items group by kind order by kind").fetchall())
